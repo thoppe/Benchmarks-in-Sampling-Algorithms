@@ -1,5 +1,5 @@
 # Benchmarks in Sampling Algorithms
-Originally proposed at the 2014 Telluride Science Research Center: _Advances in Enhanced Sampling Algorithms_.
+Originally proposed at the 2014 Telluride Science Research Center: [_Advances in Enhanced Sampling Algorithms_](https://www.telluridescience.org/meetings/workshop-details?wid=422).
 
 The goal of this project is to develop a suite of canonical test problems where various sampling algorithms can be compared quantitatively.
 Since sampling algorithms are not always directly comparable, we separate the problem sets into several groups.
@@ -12,7 +12,7 @@ Since sampling algorithms are not always directly comparable, we separate the pr
 + On/Off lattice polymers with simple potentials e.g. Go models or MJ interactions
 + Muller-Brown like: polynomial or exponential version
 
-### Biological systems, MD
+### Biological systems, Moleculer Dynamics
 
 + Alanine dipeptide with and without solvent
 + Met-enkephalin 
@@ -38,7 +38,7 @@ Since sampling algorithms are not always directly comparable, we separate the pr
 It is important to determine a metric for the right answer, different algorithms tend to concentrate on solving a particular problems.
 The simple system are proposed because they generally have fully enumerable states or an analytical solution.
 The larger systems, especially the biological ones, may need to be compared to each other or an agreed gold-standard (ANTON).
-The "unit" of measure is the number of potentials calls, since it is assumed that this is an order of magnitude more computationally expensive than the acceptance function. 
+The "unit" of measure is the number of potentials calls, since it is assumed that this is an order      of magnitude more computationally expensive than the acceptance function. 
 
 Suggested metrics:
 
