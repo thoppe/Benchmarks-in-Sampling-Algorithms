@@ -27,7 +27,7 @@ error_check = 1000
 def double_well(x, **kwargs):
     return (x**2-1.0)**2
     
-args = {"kT": .5,
+args = {"kT": 1.0,
         "friction_xi": 1.0,
         "potential":double_well}
 
@@ -63,8 +63,6 @@ while T[-1] < simulation_time:
 
     if (len(T)-2)%error_check==0:
         H = KDE(X)
-        #integrand = np.abs(H(xp) - target)
-        #err.append( np.trapz(integrand, xp) )
         err_T.append(T[-1])
 
         def estimated_pot(x): return -np.log(H(x))*args["kT"]

@@ -8,7 +8,7 @@ Since sampling algorithms are not always directly comparable, we separate the pr
 
 ### Simple potentials
 
-+ Double well in 1D, 2D, 3D
++ [Double well](MODELS/double_well) in 1D, 2D, 3D
 + On/Off lattice polymers with simple potentials e.g. Go models or MJ interactions
 + Muller-Brown like: polynomial or exponential version
 
