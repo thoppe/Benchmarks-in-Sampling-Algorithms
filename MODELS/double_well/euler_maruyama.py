@@ -6,13 +6,13 @@ from scipy.integrate import quad, trapz
 
 '''
 DRAFT for:
-Overdamped Langevin dynamics double well potential
+Overdamped Langevin dynamics in a double well potential
 Euler-Maruyama SDE
 Author: Travis Hoppe
 '''
 
 # Simultation paramters
-simulation_time = 3000.0
+simulation_time = 1000.0
 dt    = .005
 
 # Initial position
@@ -20,13 +20,14 @@ x0 = 0.0
 t0 = 0.0
 
 # Extent to calculation the invariant measure over (for errors)
-xbounds = 3.0
+xbounds = 2.5
 xp = np.linspace(-xbounds,xbounds,1000)
+error_check = 1000
 
 def double_well(x, **kwargs):
     return (x**2-1.0)**2
     
-args = {"kT": 1.0,
+args = {"kT": .5,
         "friction_xi": 1.0,
         "potential":double_well}
 
@@ -60,11 +61,21 @@ while T[-1] < simulation_time:
     X.append(x+dx)
     T.append(t+dt)
 
-    if len(T)%1000==0:
+    if (len(T)-2)%error_check==0:
         H = KDE(X)
-        integrand = np.abs(H(xp) - target)
-        err.append( np.trapz(integrand, xp) )
+        #integrand = np.abs(H(xp) - target)
+        #err.append( np.trapz(integrand, xp) )
         err_T.append(T[-1])
+
+        def estimated_pot(x): return -np.log(H(x))*args["kT"]
+        Em0, Eb, Em1 = map(estimated_pot, [-1,0,1])
+        Um0, Ub, Um1 = map(args["potential"], [-1,0,1])
+
+        dE = np.array([Eb-Em0, Eb-Em1])
+        dU = np.array([Ub-Um0, Ub-Um1])
+        err_term = np.abs(dE - dU).mean()
+        err.append(err_term)
+
         print t, err[-1]
 
 # Plot the results
@@ -87,16 +98,23 @@ ax.set_ylim(-1, 4)
 ax.set_xlabel(r"$x$")
 ax.set_ylabel(r"$U(x)$")
 
+# Plot the estimated potential
+H = KDE(X)
+U = -np.log(H(xp))*args["kT"]
+ax.plot(xp,U,color='r',alpha=.75)
+
 ax = axes[1,1]
 ax.set_title(r"Observed vs Expected measure")
 sns.distplot(X,ax=ax,label=r"$\mu(x)$, invariant measure $e^{-\beta U(x)}$")
 ax.plot(xp,target,'r',alpha=.75,label=r"$H(x)$")
+ax.set_ylim(0,1)
+ax.legend(loc=0)
 
 ax = axes[1,0]
-ax.set_title(r"$L_1$ error, $\int \ |\mu(x) - H(x)| dx$")
+ax.set_title(r"$L_1$ error, $\int \ |\Delta U_{ex} - \Delta U_{approx}| dx$")
 ax.plot(err_T,err)
 ax.set_xlim(min(T),max(T))
-ax.plot(err_T,np.zeros(len(err_T)),'k--',alpha=.5)
+ax.semilogy(err_T,np.zeros(len(err_T)),'k--',alpha=.5)
 ax.set_ylim(ymin=0,ymax=1)
 plt.tight_layout()
 plt.show()
