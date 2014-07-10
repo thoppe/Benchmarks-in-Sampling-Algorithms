@@ -1,10 +1,7 @@
-_draft draft draft draft draft draft draft draft draft draft draft draft_
-
-**Model**: Overdamped Langevin dynamics in a double well potential
-**Integrator**: Euler-Maruyama SDE
-**Metric**: Free energy barrier (exact versus estimated)
-
-_Author: Travis Hoppe_
++ **Model**: Overdamped Langevin dynamics in a double well potential
++ **Integrator**: Euler-Maruyama SDE
++ **Metric**: Free energy barrier (exact versus estimated)
++ _Author: Travis Hoppe_
 
 This is the initial setup of the toy problem of the symmetric double well potential, with a barrier height of 1kT.
 
