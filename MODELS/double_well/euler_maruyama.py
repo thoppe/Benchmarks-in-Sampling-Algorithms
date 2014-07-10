@@ -2,73 +2,103 @@ import numpy as np
 from numpy.random import normal
 from scipy.misc import derivative
 from scipy.stats.kde import gaussian_kde as KDE
+from scipy.integrate import quad, trapz
 
 '''
 DRAFT for:
-Euler-Maruyama SDE (high-friction limit) for double well potential
-[units may not be correct yet]
+Overdamped Langevin dynamics double well potential
+Euler-Maruyama SDE
 Author: Travis Hoppe
 '''
 
+# Simultation paramters
+simulation_time = 3000.0
+dt    = .005
 
-total_timesteps = 100000
-sigma = .75
-dt    = .010
+# Initial position
 x0 = 0.0
 t0 = 0.0
 
-def potential(x, **kwargs):
+# Extent to calculation the invariant measure over (for errors)
+xbounds = 3.0
+xp = np.linspace(-xbounds,xbounds,1000)
+
+def double_well(x, **kwargs):
     return (x**2-1.0)**2
+    
+args = {"kT": 1.0,
+        "friction_xi": 1.0,
+        "potential":double_well}
 
 def force(x, **kwargs):
-    return -derivative(potential, x, dx=.001)
+    return -derivative(kwargs["potential"], x, dx=.001)/kwargs["friction_xi"]
 
-def constant_noise(x, **kwargs):
-    return kwargs["sigma"]
+def brownian_motion(x, **kwargs):
+    diffusion_coeff = kwargs["kT"]/kwargs["friction_xi"]
+    return np.sqrt(2*diffusion_coeff)
 
 def EULER_MARUYAMA_SDE(x, dt, f, g,**kw):
     return f(x,**kw)*dt + g(x,**kw)*normal()*np.sqrt(dt)
 
+def invariant_measure(x):
+    diffusion_coeff    = args["kT"]/args["friction_xi"]
+    return np.exp(-args["potential"](x)/diffusion_coeff)
+
+invariant_norm = quad(invariant_measure, -xbounds, xbounds)[0]
+target = invariant_measure(xp) / invariant_norm
+
 SDE_f = force
-SDE_g = constant_noise
+SDE_g = brownian_motion
 
 X,T = [x0,],[t0,]
-xp = np.linspace(-2,2,1000)
 err, err_T = [],[]
 
-for k in xrange(total_timesteps):
+while T[-1] < simulation_time:
 
     x,t = X[-1],T[-1]
-    dx  = EULER_MARUYAMA_SDE(x, dt, SDE_f, SDE_g, sigma=sigma)
+    dx  = EULER_MARUYAMA_SDE(x, dt, SDE_f, SDE_g, **args)
     X.append(x+dx)
     T.append(t+dt)
 
-    if k and k%1000==0:
-        print k
-        H = KDE(X)        
-        err.append( (H(-1)/H(1))[0] )
+    if len(T)%1000==0:
+        H = KDE(X)
+        integrand = np.abs(H(xp) - target)
+        err.append( np.trapz(integrand, xp) )
         err_T.append(T[-1])
+        print t, err[-1]
+
+# Plot the results
 
 import pylab as plt
 import seaborn as sns
 fig, axes = plt.subplots(2, 2, figsize=(12, 7))
+
 ax = axes[0,0]
+ax.set_title(r"Particle trajectory")
 ax.plot(T,X)
+ax.set_xlim(min(T),max(T))
+ax.set_xlabel(r"$t$")
+ax.set_ylabel(r"$x$")
 
 ax = axes[0,1]
-ax.plot(xp,potential(xp))
-
-ax = axes[1,0]
-sns.distplot(X,ax=ax)
-
-#H = KDE(X)(xp)
-#ax.plot(xp, H,color='r')
+ax.set_title(r"Potential")
+ax.plot(xp,args["potential"](xp))
+ax.set_ylim(-1, 4)
+ax.set_xlabel(r"$x$")
+ax.set_ylabel(r"$U(x)$")
 
 ax = axes[1,1]
-ax.plot(err_T,err)
-ax.plot(err_T,np.ones(len(err_T)),'k--',alpha=.5)
-ax.set_ylim(0.5, 1.5)
+ax.set_title(r"Observed vs Expected measure")
+sns.distplot(X,ax=ax,label=r"$\mu(x)$, invariant measure $e^{-\beta U(x)}$")
+ax.plot(xp,target,'r',alpha=.75,label=r"$H(x)$")
 
+ax = axes[1,0]
+ax.set_title(r"$L_1$ error, $\int \ |\mu(x) - H(x)| dx$")
+ax.plot(err_T,err)
+ax.set_xlim(min(T),max(T))
+ax.plot(err_T,np.zeros(len(err_T)),'k--',alpha=.5)
+ax.set_ylim(ymin=0,ymax=1)
+plt.tight_layout()
 plt.show()
     
 
