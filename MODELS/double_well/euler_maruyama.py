@@ -1,8 +1,5 @@
 import numpy as np
 from numpy.random import normal
-from scipy.misc import derivative
-from scipy.stats.kde import gaussian_kde as KDE
-from scipy.integrate import quad, trapz
 
 '''
 DRAFT for:
@@ -11,61 +8,115 @@ Euler-Maruyama SDE
 Author: Travis Hoppe
 '''
 
-# Simultation paramters
-simulation_time = 1000.0
-dt    = .005
+class SDE_euler_maruyama(dict):
+    ''' 
+    Integrates a stochastic differential equation of the form:
+        dx(t) = f(x,t)*dt + g(x,t)*dW
+    here W is a Wigner process. Euler-Maruyama advances the SDE by the scheme:
+        x(t+dt) = f(x,t)*dt + g(x,t)*normal()*np.sqrt(dt)
+    '''
+   
 
-# Initial position
-x0 = 0.0
-t0 = 0.0
+    def __init__(self, **simulation_args):
 
-# Extent to calculation the invariant measure over (for errors)
-xbounds = 2.5
-xp = np.linspace(-xbounds,xbounds,1000)
-error_check = 1000
+        # Set the defaults
+        self["x0"] = 0.0
+        self["t0"] = 0.0
+        
+        self["kT"] = 1.0
+        self["dt"] = 0.001
+        
+        self["f"] = self["g"] = None
+
+        # Update the system parameters if passed
+        self.update( simulation_args )
+
+        self.x = self["x0"]
+        self.t = self["t0"]
+
+        self.n = 0 # Number of function calls
+
+    def step(self,**kw):
+
+        # Make sure functions have been defined
+        if not (self["f"] or self["g"]):
+            msg = "Must define functions f and g"
+            raise SyntaxError(msg)
+
+        x,t = self.x, self.t
+        dt  = self["dt"]
+
+        dx  = self["f"](x,t,**self)*dt
+        dx += self["g"](x,t,**self)*normal()*np.sqrt(dt)
+
+        self.x += dx
+        self.t += dt
+        self.n += 1
+
+
+''' 
+Define the Langevin overdamped double-well potential system:
+'''
+
+from scipy.misc import derivative
+from scipy.stats.kde import gaussian_kde as KDE
+from scipy.integrate import quad, trapz
+
 
 def double_well(x, **kwargs):
-    return (x**2-1.0)**2
-    
-args = {"kT": 1.0,
-        "friction_xi": 1.0,
-        "potential":double_well}
+    return (x**2-1.0)**2 
 
-def force(x, **kwargs):
+def force(x, t, **kwargs):
     return -derivative(kwargs["potential"], x, dx=.001)/kwargs["friction_xi"]
 
-def brownian_motion(x, **kwargs):
+def brownian_motion(x, t, **kwargs):
     diffusion_coeff = kwargs["kT"]/kwargs["friction_xi"]
     return np.sqrt(2*diffusion_coeff)
 
-def EULER_MARUYAMA_SDE(x, dt, f, g,**kw):
-    return f(x,**kw)*dt + g(x,**kw)*normal()*np.sqrt(dt)
+args = {
+    "f":force, 
+    "g":brownian_motion,
+    "potential":double_well,
+    "friction_xi": 1.0,
+    }
 
-def invariant_measure(x):
-    diffusion_coeff    = args["kT"]/args["friction_xi"]
-    return np.exp(-args["potential"](x)/diffusion_coeff)
 
-invariant_norm = quad(invariant_measure, -xbounds, xbounds)[0]
-target = invariant_measure(xp) / invariant_norm
+S = SDE_euler_maruyama(**args)
 
-SDE_f = force
-SDE_g = brownian_motion
+'''
+Determine the metric and invariant measure (for errors)
+'''
 
-X,T = [x0,],[t0,]
+def invariant_measure(x,S):
+    diffusion_coeff    = S["kT"]/S["friction_xi"]
+    return np.exp(-S["potential"](x)/diffusion_coeff)
+
+
+xbounds = 2.5
+xp = np.linspace(-xbounds,xbounds,1000)
+invariant_norm = quad(invariant_measure, -xbounds, xbounds, args=(S,))[0]
+target = invariant_measure(xp,S) / invariant_norm
+
+'''
+Run the simulation:
+'''
+
+error_check = 1000
+simulation_time = 100.0
+
+X,T = [S.x,],[S.t,]
 err, err_T = [],[]
 
-while T[-1] < simulation_time:
+while S.t < simulation_time:
+    S.step()
+    X.append(S.x)
+    T.append(S.t)
 
-    x,t = X[-1],T[-1]
-    dx  = EULER_MARUYAMA_SDE(x, dt, SDE_f, SDE_g, **args)
-    X.append(x+dx)
-    T.append(t+dt)
-
-    if (len(T)-2)%error_check==0:
+    if (S.n%error_check==0):
         H = KDE(X)
         err_T.append(T[-1])
 
-        def estimated_pot(x): return -np.log(H(x))*args["kT"]
+        def estimated_pot(x): return -np.log(H(x))*S["kT"]
         Em0, Eb, Em1 = map(estimated_pot, [-1,0,1])
         Um0, Ub, Um1 = map(args["potential"], [-1,0,1])
 
@@ -74,9 +125,11 @@ while T[-1] < simulation_time:
         err_term = np.abs(dE - dU).mean()
         err.append(err_term)
 
-        print t, err[-1]
+        print S.t, err[-1]
 
-# Plot the results
+'''
+Plot the results
+'''
 
 import pylab as plt
 import seaborn as sns
@@ -98,7 +151,7 @@ ax.set_ylabel(r"$U(x)$")
 
 # Plot the estimated potential
 H = KDE(X)
-U = -np.log(H(xp))*args["kT"]
+U = -np.log(H(xp))*S["kT"]
 ax.plot(xp,U,color='r',alpha=.75)
 
 ax = axes[1,1]
