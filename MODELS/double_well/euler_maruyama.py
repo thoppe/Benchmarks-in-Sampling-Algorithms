@@ -15,117 +15,125 @@ class SDE_euler_maruyama(dict):
     here W is a Wigner process. Euler-Maruyama advances the SDE by the scheme:
         x(t+dt) = f(x,t)*dt + g(x,t)*normal()*np.sqrt(dt)
     '''
-   
-
+  
     def __init__(self, **simulation_args):
 
-        # Set the defaults
-        self["x0"] = 0.0
-        self["t0"] = 0.0
-        
+        # Set the defaults        
         self["kT"] = 1.0
         self["dt"] = 0.001
+
+        # The current position and time
+        self["xi"] = 0.0
+        self["ti"] = 0.0
+
+        # Number of integration calls
+        self["n"]  = 0
         
-        self["f"] = self["g"] = None
+        self["SDE_f"] = self["SDE_g"] = None
 
         # Update the system parameters if passed
         self.update( simulation_args )
 
-        self.x = self["x0"]
-        self.t = self["t0"]
-
-        self.n = 0 # Number of function calls
-
-    def step(self,**kw):
-
+    def check(self):
         # Make sure functions have been defined
-        if not (self["f"] or self["g"]):
+        if not (self["SDE_f"] or self["SDE_g"]):
             msg = "Must define functions f and g"
             raise SyntaxError(msg)
 
-        x,t = self.x, self.t
-        dt  = self["dt"]
+    def step(self):
+        self.check()
 
-        dx  = self["f"](x,t,**self)*dt
-        dx += self["g"](x,t,**self)*normal()*np.sqrt(dt)
+        x,t,dt = self["xi"], self["ti"], self["dt"]
 
-        self.x += dx
-        self.t += dt
-        self.n += 1
+        dx  = self["SDE_f"](x,t,**self)*dt
+        dx += self["SDE_g"](x,t,**self)*normal()*np.sqrt(dt)
+
+        self["xi"] += dx
+        self["ti"] += dt
+        self["n"]  += 1
+
+class overdamped_langevin(SDE_euler_maruyama):
+    ''' 
+    Defines a generic one-dimensional Langevin overdamped system
+    integrated by Euler-Maruyama.
+    '''
+
+    def brownian_motion(self, x, t,**kw):
+        return np.sqrt(2*self["kT"]/self["friction_coeff"])
+
+    def __init__(self, **simulation_args):
+        super(overdamped_langevin, self).__init__(**simulation_args)
+
+        # Set the defaults
+        self["friction_coeff"] = 1.0
+        self["kT"] = 1.0
+       
+        # Update the system parameters if passed
+        self.update( simulation_args )
+
+        # The overdamped langevin experiences constant brownian motion
+        self["SDE_g"] = self.brownian_motion
+
+class double_well(overdamped_langevin):
+    ''' 
+    Defines a symmetric double well of height 1kT, under a 
+    Langevin overdamped system integrated by Euler-Maruyama.
+    '''
+
+    def invariant_measure(self,x):
+        return np.exp(-self.U(x)/self['kT'])
+
+    def U(self,x,**kw):
+        return (x**2-1.0)**2 
+    
+    def force(self,x,t,**kw):
+        dU = 4*x*(x**2-1)
+        return -dU/self["friction_coeff"]
+
+    def __init__(self, **simulation_args):
+        super(double_well, self).__init__(**simulation_args)
+
+        self["potential"] = self.U
+        self["SDE_f"] = self.force   
 
 
-''' 
-Define the Langevin overdamped double-well potential system:
-'''
-
-from scipy.misc import derivative
 from scipy.stats.kde import gaussian_kde as KDE
-from scipy.integrate import quad, trapz
+from scipy.integrate import quad
 
-
-def double_well(x, **kwargs):
-    return (x**2-1.0)**2 
-
-def force(x, t, **kwargs):
-    return -derivative(kwargs["potential"], x, dx=.001)/kwargs["friction_xi"]
-
-def brownian_motion(x, t, **kwargs):
-    diffusion_coeff = kwargs["kT"]/kwargs["friction_xi"]
-    return np.sqrt(2*diffusion_coeff)
-
-args = {
-    "f":force, 
-    "g":brownian_motion,
-    "potential":double_well,
-    "friction_xi": 1.0,
-    }
-
-
-S = SDE_euler_maruyama(**args)
-
-'''
-Determine the metric and invariant measure (for errors)
-'''
-
-def invariant_measure(x,S):
-    diffusion_coeff    = S["kT"]/S["friction_xi"]
-    return np.exp(-S["potential"](x)/diffusion_coeff)
-
-
-xbounds = 2.5
-xp = np.linspace(-xbounds,xbounds,1000)
-invariant_norm = quad(invariant_measure, -xbounds, xbounds, args=(S,))[0]
-target = invariant_measure(xp,S) / invariant_norm
+args = {"kT":1.5, "friction_coeff":.1}
+S = double_well(**args)
 
 '''
 Run the simulation:
 '''
 
-error_check = 1000
-simulation_time = 100.0
 
-X,T = [S.x,],[S.t,]
+error_check = 1000
+simulation_time = 300.0
+
+X,T = [S["xi"],],[S["ti"],]
 err, err_T = [],[]
 
-while S.t < simulation_time:
+while S["ti"] < simulation_time:
     S.step()
-    X.append(S.x)
-    T.append(S.t)
+    X.append(S["xi"])
+    T.append(S["ti"])
 
-    if (S.n%error_check==0):
+    if (S["n"]%error_check==0):
         H = KDE(X)
         err_T.append(T[-1])
 
         def estimated_pot(x): return -np.log(H(x))*S["kT"]
         Em0, Eb, Em1 = map(estimated_pot, [-1,0,1])
-        Um0, Ub, Um1 = map(args["potential"], [-1,0,1])
+        Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
 
         dE = np.array([Eb-Em0, Eb-Em1])
         dU = np.array([Ub-Um0, Ub-Um1])
         err_term = np.abs(dE - dU).mean()
         err.append(err_term)
 
-        print S.t, err[-1]
+        print S["ti"], err[-1]
+
 
 '''
 Plot the results
@@ -133,6 +141,10 @@ Plot the results
 
 import pylab as plt
 import seaborn as sns
+
+xbounds = 2.5
+xp = np.linspace(-xbounds,xbounds,1000)
+
 fig, axes = plt.subplots(2, 2, figsize=(12, 7))
 
 ax = axes[0,0]
@@ -144,7 +156,7 @@ ax.set_ylabel(r"$x$")
 
 ax = axes[0,1]
 ax.set_title(r"Potential")
-ax.plot(xp,args["potential"](xp))
+ax.plot(xp,S["potential"](xp))
 ax.set_ylim(-1, 4)
 ax.set_xlabel(r"$x$")
 ax.set_ylabel(r"$U(x)$")
@@ -157,6 +169,11 @@ ax.plot(xp,U,color='r',alpha=.75)
 ax = axes[1,1]
 ax.set_title(r"Observed vs Expected measure")
 sns.distplot(X,ax=ax,label=r"$\mu(x)$, invariant measure $e^{-\beta U(x)}$")
+
+invariant_norm = quad(S.invariant_measure, -xbounds, xbounds)[0]
+target = S.invariant_measure(xp) / invariant_norm
+print invariant_norm
+
 ax.plot(xp,target,'r',alpha=.75,label=r"$H(x)$")
 ax.set_ylim(0,1)
 ax.legend(loc=0)
