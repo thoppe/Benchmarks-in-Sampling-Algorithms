@@ -37,7 +37,7 @@ class SDE_euler_maruyama(dict):
     def check(self):
         # Make sure functions have been defined
         if not (self["SDE_f"] or self["SDE_g"]):
-            msg = "Must define functions f and g"
+            msg = "Must define functions SDE_f and SDE_g"
             raise SyntaxError(msg)
 
     def step(self):
@@ -97,43 +97,101 @@ class double_well(overdamped_langevin):
         self["SDE_f"] = self.force   
 
 
+class sim_double_well(double_well):
+    ''' 
+    Runs the simulation for the double well, computes the metric at defined timesteps.
+    '''
+
+    def __init__(self, **simulation_args):
+        super(sim_double_well, self).__init__(**simulation_args)
+
+        # Set the defaults
+
+        # Total time to integrate (not number of integration steps)
+        self["simulation_time"] = 300.0
+
+        # Check the metric every n time_steps
+        self["metric_check"] = 1000
+
+        # Current simulation step
+        self["simulation_step"] = 0
+
+        # Metric function to run (MUST BE SET)
+        self["SIM_metric_func"] = None
+
+        # Update the system parameters if passed
+        self.update( simulation_args )
+
+        # Full trajectory
+        self.traj_x, self.traj_t = [], []
+        
+        # Metric trajectory
+        self.traj_metric, self.traj_metric_t = [], []
+
+    def check(self):
+        # Make sure functions have been defined
+        if not (self["SIM_metric_func"]):
+            msg = "Must define a metric function"
+            raise SyntaxError(msg)
+
+    def record_traj(self):
+        self.traj_x.append( self["xi"] )
+        self.traj_t.append( self["ti"] )       
+
+    def record_metric(self):
+        self.check()
+        val = self["SIM_metric_func"](self)
+        self.traj_metric.append( val )
+        self.traj_metric_t.append( self["ti"] )
+
+    def run(self):
+
+        self.record_traj()
+
+        while self["ti"] < self["simulation_time"]:
+            self.step()
+            self.record_traj()
+            self["simulation_step"] += 1
+            
+            if (self["simulation_step"] and
+                (self["simulation_step"] % self["metric_check"]) == 0):
+
+                # Take a measurement
+                self.record_metric()
+
+                print "Simulation time", self["ti"]
+
+
 from scipy.stats.kde import gaussian_kde as KDE
 from scipy.integrate import quad
 
-args = {"kT":1.5, "friction_coeff":.1}
-S = double_well(**args)
+def average_activation_energy(S):
+    ''' 
+    Computes the activation energy (\delta H) averaged across both sides 
+    of the double well with minima and maximum at [-1,0,1] respectively. The enthalpy
+    is estimated using kernel density estimated, slow but more effective then a histogram. 
+    '''
+    X = S.traj_x
+    H = KDE(X)    
+    def U_estimated(x): return -np.log(H(x))*S["kT"]
+    Em0, Eb, Em1 = map(U_estimated, [-1,0,1])
+    activation_energy = np.array([Eb-Em0, Eb-Em1])
+    return activation_energy.mean()
 
-'''
-Run the simulation:
-'''
+args = {"kT":1.5, 
+        "friction_coeff":.1,
+        "simulation_time": 30,
+        "SIM_metric_func":average_activation_energy}
 
+S = sim_double_well(**args)
+S.run()
 
-error_check = 1000
-simulation_time = 300.0
+# Compute the exact value for error measurements
+Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
+exact_avg_activation_energy = np.array([Ub-Um0, Ub-Um1]).mean()
 
-X,T = [S["xi"],],[S["ti"],]
-err, err_T = [],[]
-
-while S["ti"] < simulation_time:
-    S.step()
-    X.append(S["xi"])
-    T.append(S["ti"])
-
-    if (S["n"]%error_check==0):
-        H = KDE(X)
-        err_T.append(T[-1])
-
-        def estimated_pot(x): return -np.log(H(x))*S["kT"]
-        Em0, Eb, Em1 = map(estimated_pot, [-1,0,1])
-        Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
-
-        dE = np.array([Eb-Em0, Eb-Em1])
-        dU = np.array([Ub-Um0, Ub-Um1])
-        err_term = np.abs(dE - dU).mean()
-        err.append(err_term)
-
-        print S["ti"], err[-1]
-
+# Compute the error
+err = np.abs((np.array(S.traj_metric) - exact_avg_activation_energy))
 
 '''
 Plot the results
@@ -144,11 +202,12 @@ import seaborn as sns
 
 xbounds = 2.5
 xp = np.linspace(-xbounds,xbounds,1000)
-
 fig, axes = plt.subplots(2, 2, figsize=(12, 7))
 
 ax = axes[0,0]
 ax.set_title(r"Particle trajectory")
+
+T,X = S.traj_t, S.traj_x
 ax.plot(T,X)
 ax.set_xlim(min(T),max(T))
 ax.set_xlabel(r"$t$")
@@ -179,6 +238,7 @@ ax.set_ylim(0,1)
 ax.legend(loc=0)
 
 ax = axes[1,0]
+err_T = S.traj_metric_t
 ax.set_title(r"$L_1$ error, $\int \ |\Delta U_{ex} - \Delta U_{approx}| dx$")
 ax.plot(err_T,err)
 ax.set_xlim(min(T),max(T))
