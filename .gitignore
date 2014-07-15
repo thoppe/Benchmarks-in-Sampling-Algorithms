@@ -1,0 +1,7 @@
+# Temp files
+\#*
+.\#*
+*~
+
+# Python files
+*.pyc
