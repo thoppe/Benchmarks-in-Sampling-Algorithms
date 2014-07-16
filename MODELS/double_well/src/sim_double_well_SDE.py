@@ -1,4 +1,4 @@
-import json
+import json, logging
 import numpy as np
 from numpy.random import normal
 import metrics_double_well as metrics
@@ -171,8 +171,8 @@ class sim_double_well(double_well):
 
                 # Take a measurement
                 self.record_metric()
-
-                print "Simulation time", self["ti"]
+                
+                logging.info("Simulation time %f" % self["ti"])
 
 def load_parameters(f_json):
     '''
