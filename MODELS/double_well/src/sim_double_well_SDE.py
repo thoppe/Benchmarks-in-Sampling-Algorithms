@@ -1,5 +1,7 @@
+import json
 import numpy as np
 from numpy.random import normal
+import metrics_double_well as metrics
 
 '''
 Overdamped Langevin dynamics in a double well potential
@@ -109,7 +111,8 @@ class double_well(overdamped_langevin):
 
 class sim_double_well(double_well):
     ''' 
-    Runs the simulation for the double well, computes the metric at defined timesteps.
+    Runs the simulation for the double well, 
+    computes the metric at defined timesteps.
     '''
 
     def __init__(self, **simulation_args):
@@ -171,3 +174,21 @@ class sim_double_well(double_well):
 
                 print "Simulation time", self["ti"]
 
+def load_parameters(f_json):
+    '''
+    Loads a JSON file with the system parameters in it.
+    Checks if the metric function is a valid known function.
+    '''
+
+    with open(f_json) as FIN:
+        try:
+            params = json.loads(FIN.read())
+        except Exception as ex:
+            err_msg = "Problem with json file: {} {}".format(f_json, ex)
+            raise ValueError(err_msg)
+
+        # Turn the loaded string SIM_metric_func into a function
+        func_name = "{}.{}".format("metrics", params["SIM_metric_func"])
+        params["SIM_metric_func"] = eval(func_name)
+
+    return params
