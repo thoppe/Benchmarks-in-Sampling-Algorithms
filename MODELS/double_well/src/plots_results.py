@@ -24,6 +24,8 @@ for c,label,phrase in zip(color_list,
         time *= raw_data.shape[0]
 
     sns.tsplot(err,time, color=c, condition=label)
+
+plt.ylim(0,0.5)
 plt.legend(loc="best")
 plt.show()
 

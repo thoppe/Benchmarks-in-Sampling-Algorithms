@@ -45,8 +45,9 @@ while not REPLICAS[0].is_complete():
     s0, s1 = random.sample(REPLICAS, 2)
     u0 = s0["potential"](s0["xi"])
     u1 = s1["potential"](s1["xi"])
-    delta = (1/s0["kT"])-(1/s1["kT"]) * (u1-u0)
-    p = np.exp(-delta)
+    beta0 = 1.0/s0["kT"]
+    beta1 = 1.0/s1["kT"]
+    p = np.exp((beta0-beta1)*(u0-u1))
 
     # Exchange replica coordinates if Metropolis-Hastings condition is met
     if np.random.random() < p:
