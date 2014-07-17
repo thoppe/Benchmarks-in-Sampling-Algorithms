@@ -6,8 +6,8 @@ def average_activation_energy(S):
     ''' 
     Computes the activation energy (\delta H) averaged across both sides 
     of the double well with minima and maximum at [-1,0,1] respectively. 
-    The enthalpy is estimated using kernel density estimated, 
-    slow but more effective then a histogram. 
+    The enthalpy is estimated using kernel density estimation (KDE),
+    slow but more accurate then a histogram. 
     '''
 
     X = S.traj_x

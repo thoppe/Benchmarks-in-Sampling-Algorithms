@@ -5,7 +5,7 @@ import glob
 
 results_list = ["results/example_EnergyBarrier*",
                 "results/replicaEx_EnergyBarrier**",]
-labels_list  = ["Equilibrium sampling", "Replica Exchange"]
+labels_list  = ["Equilibrium sampling", "Replica Exchange x5"]
 
 color_list   = sns.color_palette("muted", len(results_list))
 
@@ -20,13 +20,16 @@ for c,label,phrase in zip(color_list,
     time = raw_data[0,:, 0]
 
     # Manual correction
-    if "replica" in phrase: 
-        time *= raw_data.shape[0]
+    #if "replica" in phrase: 
+    #    time *= raw_data.shape[0]
 
     sns.tsplot(err,time, color=c, condition=label)
 
 plt.ylim(0,0.5)
 plt.legend(loc="best")
+plt.xlabel(r"simulation $t$")
+plt.ylabel(r"Error")
+plt.tight_layout()
 plt.show()
 
                

@@ -25,16 +25,18 @@ logging.root.setLevel(logging.INFO)
 params = load_parameters(cargs["parameter_file_json"])
 
 # Create a simulation for every temperature
-
 REPLICAS = []
 for kT in params["kT_list"]:
     p = params.copy()
     p["kT"] = kT
     REPLICAS.append( sim_double_well(**p) )
 
+# Let the systems equlibrate on their own
+for S in REPLICAS: 
+    S.run(params["warmup_steps"], record=False)
 
 def exchange_replicas(s0,s1):
-    s0["kT"], s1["kT"] = s1["kT"], s0["kT"]
+    s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
 
 exchange_steps = params["exchange_steps"]
 

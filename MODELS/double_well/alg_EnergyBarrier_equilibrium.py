@@ -26,6 +26,11 @@ logging.root.setLevel(logging.INFO)
 params = load_parameters(cargs["parameter_file_json"])
 
 S = sim_double_well(**params)
+
+# First equlibrate the system
+S.run(params["warmup_steps"], record=False)
+
+# Now run it
 S.run()
 
 # Compute the exact value for error measurements

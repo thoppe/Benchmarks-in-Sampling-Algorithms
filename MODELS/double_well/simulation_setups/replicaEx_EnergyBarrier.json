@@ -1,8 +1,9 @@
 {
     "kT_list" : [0.8,0.9,1,1.1,1.2],
 
-    "exchange_steps" : 3000,
+    "exchange_steps" : 3001,
     "metric_check"   : 1000,
+    "warmup_steps" : 50000,
    
     "friction_coeff" : 0.1,
     "dt" : 0.001,

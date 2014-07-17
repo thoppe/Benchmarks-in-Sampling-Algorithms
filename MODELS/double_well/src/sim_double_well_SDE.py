@@ -160,16 +160,16 @@ class sim_double_well(double_well):
     def is_complete(self):
         return self["ti"] >= self["simulation_time"]
 
-    def run(self, fixed_steps=np.inf):
+    def run(self, fixed_steps=np.inf, record=True):
 
         run_counter = 0
-        self.record_traj()
+        if record: self.record_traj()
 
         while ((not self.is_complete()) and
                (run_counter <= fixed_steps)):
 
             self.step()
-            self.record_traj()
+            if record: self.record_traj()
             self["simulation_step"] += 1
             run_counter += 1
             
@@ -177,7 +177,7 @@ class sim_double_well(double_well):
                 (self["simulation_step"] % self["metric_check"]) == 0):
 
                 # Take a measurement
-                self.record_metric()
+                if record: self.record_metric()
                 
                 logging.info("Simulation time %f" % self["ti"])
 
