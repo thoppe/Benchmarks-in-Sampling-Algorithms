@@ -4,11 +4,12 @@
 
     "dt" : 0.001,
 
-    "simulation_time": 1000,
+    "simulation_time": 2000,
+
     "metric_check"   : 1000,
  
     "SIM_metric_func": "average_activation_energy",
-    "f_results": "results/example_EnergyBarrier.txt",
+    "f_results": "results/example_EnergyBarrier_r{replica_n}.txt",
 
-    "show_plot" : true
+    "show_plot" : false
 }

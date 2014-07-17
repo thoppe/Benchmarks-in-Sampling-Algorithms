@@ -15,6 +15,8 @@ Langevin dynamics with an Euler-Maruyama SDE.
 
 parser = argparse.ArgumentParser(description=desc)
 parser.add_argument('parameter_file_json')
+parser.add_argument('--replica_n', type=int, default=0,
+                    help="Appends this number onto the results file")
 cargs = vars(parser.parse_args())
 
 # Start the logger
@@ -35,7 +37,8 @@ err_T = S.traj_metric_t
 err   = np.abs((np.array(S.traj_metric) - exact_avg_activation_energy))
 
 # Save the results
-np.savetxt(params["f_results"],np.array([err_T, err]).T)
+f_save = params["f_results"].format(**cargs)
+np.savetxt(f_save,np.array([err_T, err]).T)
 
 # Plot the results if asked
 if "show_plot" in params and params["show_plot"]:
