@@ -30,7 +30,8 @@ The simulation can be repeated by running:
 
 Where the configuration file [example_EnergyBarrier.json](simulation_setups/example_EnergyBarrier.json) is given by (TO DO: Comment on parameters):
 
-    {
+```JSON
+{
     "kT": 1.0,
     "friction_coeff" : 0.1,
 
@@ -43,7 +44,8 @@ Where the configuration file [example_EnergyBarrier.json](simulation_setups/exam
     "f_results": "results/example_EnergyBarrier_r{replica_n}.txt",
 
     "show_plot" : false
-    }
+}
+```
 
 **Sampling Algorithm**: Replica Exchange
 
@@ -53,11 +55,12 @@ The simulation can be repeated by running:
 
 In addition to the parameters set by the simple sampling algorithm, the following options are accepted:
 
-    {
-     "kT_list" : [0.8,0.9,1,1.1,1.2],
-     "exchange_steps" : 30000,
-    }
-
+```JSON
+{
+    "kT_list" : [0.8,0.9,1,1.1,1.2],
+    "exchange_steps" : 30000,
+}
+```
 
 
 
