@@ -34,7 +34,7 @@ for kT in params["kT_list"]:
 
 
 def exchange_replicas(s0,s1):
-    s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
+    s0["kT"], s1["kT"] = s1["kT"], s0["kT"]
 
 exchange_steps = params["exchange_steps"]
 
