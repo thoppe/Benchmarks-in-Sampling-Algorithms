@@ -35,7 +35,7 @@ err_T = S.traj_metric_t
 err   = np.abs((np.array(S.traj_metric) - exact_avg_activation_energy))
 
 # Save the results
-np.savetxt(params["f_results"],[err_T, err])
+np.savetxt(params["f_results"],np.array([err_T, err]).T)
 
 # Plot the results if asked
 if "show_plot" in params and params["show_plot"]:

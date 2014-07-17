@@ -14,9 +14,13 @@ def plot_simulation(S, err):
     ax = axes[0,0]
     ax.set_title(r"Particle trajectory")
 
-    T,X = S.traj_t, S.traj_x
-    ax.plot(T,X)
-    ax.set_xlim(min(T),max(T))
+    T,X = np.array(S.traj_t), np.array(S.traj_x)
+
+    # Plot only the last 100 s of simulation time
+    idx = T > (T.max()-25)
+        
+    ax.plot(T[idx],X[idx])
+    ax.set_xlim(min(T[idx]),max(T[idx]))
     ax.set_xlabel(r"$t$")
     ax.set_ylabel(r"$x$")
 

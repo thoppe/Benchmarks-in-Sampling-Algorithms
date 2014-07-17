@@ -9,7 +9,7 @@ Euler-Maruyama SDE
 Author: Travis Hoppe
 
 The classes build off each other, to run a simulation define a metric function,
-set some parameters and run the simulation:
+set some parameters and run the simulation by passing a dictionary:
 
 args = {"kT":1.5, 
         "friction_coeff":.1,
@@ -157,16 +157,23 @@ class sim_double_well(double_well):
         self.traj_metric.append( val )
         self.traj_metric_t.append( self["ti"] )
 
-    def run(self):
+    def is_complete(self):
+        return self["ti"] >= self["simulation_time"]
 
+    def run(self, fixed_steps=np.inf):
+
+        run_counter = 0
         self.record_traj()
 
-        while self["ti"] < self["simulation_time"]:
+        while ((not self.is_complete()) and
+               (run_counter <= fixed_steps)):
+
             self.step()
             self.record_traj()
             self["simulation_step"] += 1
+            run_counter += 1
             
-            if (self["simulation_step"] and
+            if ((self["simulation_step"]) and
                 (self["simulation_step"] % self["metric_check"]) == 0):
 
                 # Take a measurement
