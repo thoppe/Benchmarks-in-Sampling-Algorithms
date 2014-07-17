@@ -7,7 +7,16 @@ This is the initial setup of the toy problem of a symmetric double well potentia
 The particle feels both Brownian motion and the underlying potential, and hence it samples the invariant measure of exp(-U(x)/kT). 
 The energy barrier is estimated on both sides and compared to the exact value, and the error term is the L1 average of these differences.
 
-+ **Sampling Algorithm**: None
+## Results
+
+The results of the sampling algorithms are shown below:
+
+![](figures/convergence_EnergyBarrier.png)
+
+## Sampling Algorithms
+
+
+**Sampling Algorithm**: None
 
 The simulation shows a naive way of calculating the energy barrier, simply let the system evolve. 
 Shown below is a sample trajectory, the estimated potential, the error and the observed versus expected visits to each position. 
@@ -36,7 +45,7 @@ Where the configuration file [example_EnergyBarrier.json](simulation_setups/exam
     "show_plot" : false
     }
 
-+ **Sampling Algorithm**: Replica Exchange
+**Sampling Algorithm**: Replica Exchange
 
 The simulation can be repeated by running:
 
@@ -44,16 +53,11 @@ The simulation can be repeated by running:
 
 In addition to the parameters set by the simple sampling algorithm, the following options are accepted:
 
-   {
-    "kT_list" : [0.8,0.9,1,1.1,1.2],
-    "exchange_steps" : 30000,
-   }
+    {
+     "kT_list" : [0.8,0.9,1,1.1,1.2],
+     "exchange_steps" : 30000,
+    }
 
-## Results
-
-The results of the sampling algorithms are shown below:
-
-![](figures/convergence_EnergyBarrier.png)
 
 
 
