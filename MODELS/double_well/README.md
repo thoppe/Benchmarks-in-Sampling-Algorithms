@@ -4,23 +4,42 @@
 + **Integrator**: [Euler-Maruyama SDE](http://en.wikipedia.org/wiki/Euler-Maruyama)
 + **Author**: [Travis Hoppe](https://github.com/thoppe)
 
-This is the initial setup of the toy problem of a one-dimensional symmetric double well potential, with a barrier height of 1kT.
+This is the initial setup of the toy problem of a one-dimensional symmetric double well potential, with a barrier height of 1kT. The potential energy is:
 
-<p align="center" class="mdequation"><img src=".equations/8df0e476ded358dc7b2784f8d8ab5861a383631a73dd32f678a8dcd46c07a3db.png" alt="$U(x) = (x^2 - 1)^2$" /></p>The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
+<p align="center" class="mdequation"><img src=".equations/8df0e476ded358dc7b2784f8d8ab5861a383631a73dd32f678a8dcd46c07a3db.png" alt="$U(x) = (x^2 - 1)^2$" /></p>
+
+
+The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
+The system evolves according to the stochastic differential equation:
+
+<p align="center" class="mdequation"><img src=".equations/21e03bf2b722b69b93c030484ac6c78b14fcc4d3e3c000d0f5a7cfe045d2f69d.png" alt="$ \dot{x}(t) = - \nabla U(X)/\zeta + \sqrt{2 kT \zeta^1} R(t)  $" /></p>
+
+where zeta is the frictional coefficient times the mass. 
 Given enough time, the trajectory of the particle samples the the invariant measure
 
-<p align="center" class="mdequation"><img src=".equations/96369d94eceb564256e94c7e5674bceb8a97ed26a72de85c9269f0dfab06ecd8.png" alt="$\mu(x) = exp(-U(x)/kT) \mathcal{Z}^{-1}$" /></p>## **Metric**: Energy barrier (exact versus estimated) 
+<p align="center" class="mdequation"><img src=".equations/7083ff27c4483a6ecaa6326ce60b0df098270a31d358922510406337b8f46a22.png" alt="$\mu(x) = e ^{-U(x)/kT} \mathcal{Z}^{-1}$" /></p>
+
+## Metric: Energy Barrier
 
 The energy barrier is estimated on both sides and compared to the exact value.
 The error term is the L1 average of these differences.
 
-## Results
+<p align="center" class="mdequation"><img src=".equations/39b1b09aaca35946c4176faaf90e3f98f11bc212f4d38a509d23cd7f2fb730e8.png" alt="$ \epsilon = \frac{1}{2} (|(V(-1)-V(0)) - (U(-1)-U(0))| + |(V( 1)-V(0)) - (U( 1)-U(0))|$" /></p>
+
+Here V(x) is the estimated potential. 
+Given a histogram H(x), that records the number of visits to each state one can estimate the potential as
+
+<p align="center" class="mdequation"><img src=".equations/85b3044977c3d55392496cd69131615af66aca3d41af7c3d9981ddd0c6447e8e.png" alt="$V(x) \approx -kT \log( H(x) ) $" /></p>
+
+The histogram can be a simple bin, or alternatively one can use a kernel density estimation on the entire trajectory.
+
+#### Results: Energy Barrier
 
 The results of the sampling algorithms are shown below:
 
 ![](figures/convergence_EnergyBarrier.png)
 
-## Sampling Algorithms
+## Sampling Algorithms: Energy Barrier
 
 **Sampling Algorithm**: None
 
