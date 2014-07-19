@@ -1,11 +1,22 @@
+# Double well
+
 + **Model**: [Overdamped Langevin dynamics](http://en.wikipedia.org/wiki/Langevin_dynamics) in a double well potential
 + **Integrator**: [Euler-Maruyama SDE](http://en.wikipedia.org/wiki/Euler-Maruyama)
-+ **Metric**: Energy barrier (exact versus estimated)
 + **Author**: [Travis Hoppe](https://github.com/thoppe)
 
-This is the initial setup of the toy problem of a symmetric double well potential, with a barrier height of 1kT. 
-The particle feels both Brownian motion and the underlying potential, and hence it samples the invariant measure of exp(-U(x)/kT). 
-The energy barrier is estimated on both sides and compared to the exact value, and the error term is the L1 average of these differences.
+This is the initial setup of the toy problem of a one-dimensional symmetric double well potential, with a barrier height of 1kT.
+
+!["U(x) = (x^2 - 1)^2"](.equations/d49d41be587045bb189fe71b294076c1a630614532ef5daf38d1eccb4fe70025.png)
+
+The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
+Given enough time, the trajectory of the particle samples the the invariant measure
+
+!["\mu(x) = exp(-U(x)/kT) \mathcal{Z}^{-1}"](.equations/667c811171342a982b552a3db148a3667b604d9e4497e610661c5d3a6b10de4b.png)
+
+## **Metric**: Energy barrier (exact versus estimated) 
+
+The energy barrier is estimated on both sides and compared to the exact value.
+The error term is the L1 average of these differences.
 
 ## Results
 
@@ -14,7 +25,6 @@ The results of the sampling algorithms are shown below:
 ![](figures/convergence_EnergyBarrier.png)
 
 ## Sampling Algorithms
-
 
 **Sampling Algorithm**: None
 
