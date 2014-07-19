@@ -8,13 +8,12 @@ This is the initial setup of the toy problem of a one-dimensional symmetric doub
 
 <p align="center" class="mdequation"><img src=".equations/8df0e476ded358dc7b2784f8d8ab5861a383631a73dd32f678a8dcd46c07a3db.png" alt="$U(x) = (x^2 - 1)^2$" /></p>
 
-
 The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
 The system evolves according to the stochastic differential equation:
 
-<p align="center" class="mdequation"><img src=".equations/21e03bf2b722b69b93c030484ac6c78b14fcc4d3e3c000d0f5a7cfe045d2f69d.png" alt="$ \dot{x}(t) = - \nabla U(X)/\zeta + \sqrt{2 kT \zeta^1} R(t)  $" /></p>
+<p align="center" class="mdequation"><img src=".equations/b2304f4808aa680f5d85d94b293e3cc91bea3288231acb61cbcf6823d983adf2.png" alt="$ \dot{x}(t) = - \nabla U(x)/\zeta^{-1} + \sqrt{2 kT \zeta^{-1}} W(t)  $" /></p>
 
-where zeta is the frictional coefficient times the mass. 
+where zeta is the frictional coefficient times the mass and W is a delta-correlated stationary Gaussian process with zero-mean (simulating random thermal motion). 
 Given enough time, the trajectory of the particle samples the the invariant measure
 
 <p align="center" class="mdequation"><img src=".equations/7083ff27c4483a6ecaa6326ce60b0df098270a31d358922510406337b8f46a22.png" alt="$\mu(x) = e ^{-U(x)/kT} \mathcal{Z}^{-1}$" /></p>
@@ -24,9 +23,9 @@ Given enough time, the trajectory of the particle samples the the invariant meas
 The energy barrier is estimated on both sides and compared to the exact value.
 The error term is the L1 average of these differences.
 
-<p align="center" class="mdequation"><img src=".equations/39b1b09aaca35946c4176faaf90e3f98f11bc212f4d38a509d23cd7f2fb730e8.png" alt="$ \epsilon = \frac{1}{2} (|(V(-1)-V(0)) - (U(-1)-U(0))| + |(V( 1)-V(0)) - (U( 1)-U(0))|$" /></p>
+<p align="center" class="mdequation"><img src=".equations/7aa8e55b6db2940e1365f4811d7350f072c259abe1f681bf86a7adc2766ae28d.png" alt="$ \epsilon = \frac{1}{2} (|\Delta V(-1) - 1| + |\Delta V(1) - 1|)$" /></p>
 
-Here V(x) is the estimated potential. 
+Here V(x) is the estimated potential and \Delta V(x) measures the difference from x to the top of the well.
 Given a histogram H(x), that records the number of visits to each state one can estimate the potential as
 
 <p align="center" class="mdequation"><img src=".equations/85b3044977c3d55392496cd69131615af66aca3d41af7c3d9981ddd0c6447e8e.png" alt="$V(x) \approx -kT \log( H(x) ) $" /></p>
@@ -38,8 +37,6 @@ The histogram can be a simple bin, or alternatively one can use a kernel density
 The results of the sampling algorithms are shown below:
 
 ![](figures/convergence_EnergyBarrier.png)
-
-## Sampling Algorithms: Energy Barrier
 
 **Sampling Algorithm**: None
 
