@@ -6,12 +6,12 @@
 
 This is the initial setup of the toy problem of a one-dimensional symmetric double well potential, with a barrier height of 1kT.
 
-!["U(x) = (x^2 - 1)^2"](.equations/d49d41be587045bb189fe71b294076c1a630614532ef5daf38d1eccb4fe70025.png)
+!["$U(x) = (x^2 - 1)^2$"](.equations/d49d41be587045bb189fe71b294076c1a630614532ef5daf38d1eccb4fe70025.png)
 
 The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
 Given enough time, the trajectory of the particle samples the the invariant measure
 
-!["\mu(x) = exp(-U(x)/kT) \mathcal{Z}^{-1}"](.equations/667c811171342a982b552a3db148a3667b604d9e4497e610661c5d3a6b10de4b.png)
+!["$\mu(x) = exp(-U(x)/kT) \mathcal{Z}^{-1}$"](.equations/667c811171342a982b552a3db148a3667b604d9e4497e610661c5d3a6b10de4b.png)
 
 ## **Metric**: Energy barrier (exact versus estimated) 
 
