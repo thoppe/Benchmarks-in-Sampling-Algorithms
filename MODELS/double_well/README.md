@@ -9,7 +9,7 @@ This is the initial setup of the toy problem of a one-dimensional symmetric doub
 <p align="center" class="mdequation"><img src=".equations/8df0e476ded358dc7b2784f8d8ab5861a383631a73dd32f678a8dcd46c07a3db.png" alt="$U(x) = (x^2 - 1)^2$" /></p>
 
 The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
-The system evolves according to the stochastic differential equation:
+The system evolves according to the [stochastic differential equation](http://en.wikipedia.org/wiki/Brownian_dynamics):
 
 <p align="center" class="mdequation"><img src=".equations/054ec5f599ddf08f1a95b9a50a7114287c7bb4ad88e837c599db5ebaf9fd95a6.png" alt="$ \dot{x}(t) = - \nabla U(x)\zeta^{-1} + \sqrt{2 kT \zeta^{-1}} W(t)  $" /></p>
 
@@ -17,6 +17,8 @@ where zeta is the frictional coefficient times the mass and W is a delta-correla
 Given enough time, the trajectory of the particle samples the the invariant measure
 
 <p align="center" class="mdequation"><img src=".equations/7083ff27c4483a6ecaa6326ce60b0df098270a31d358922510406337b8f46a22.png" alt="$\mu(x) = e ^{-U(x)/kT} \mathcal{Z}^{-1}$" /></p>
+
+The following codes require the python libraries [`numpy`](www.numpy.org) and [`scipy`](www.scipy.org) to compute and [`matplotlib`](matplotlib.org) and [`seaborn`](https://github.com/mwaskom/seaborn) to plot.
 
 ## Metric: Energy Barrier
 
@@ -38,7 +40,7 @@ The results of the sampling algorithms are shown below:
 
 ![](figures/convergence_EnergyBarrier.png)
 
-**Sampling Algorithm**: None
+**Sampling Algorithm**: [Equilibrium](alg_EnergyBarrier_equilibrium.py)
 
 The simulation shows a naive way of calculating the energy barrier, simply let the system evolve. 
 Shown below is a sample trajectory, the estimated potential, the error and the observed versus expected visits to each position. 
@@ -50,7 +52,7 @@ The simulation can be repeated by running:
 
     python alg_EnergyBarrier_equilibrium.py simulation_setups/example_EnergyBarrier.json
 
-Where the configuration file [example_EnergyBarrier.json](simulation_setups/example_EnergyBarrier.json) is given by (TO DO: Comment on parameters):
+Where the configuration file [`example_EnergyBarrier.json`](simulation_setups/example_EnergyBarrier.json) is given by:
 
 ```JSON
 {
@@ -69,13 +71,13 @@ Where the configuration file [example_EnergyBarrier.json](simulation_setups/exam
 }
 ```
 
-**Sampling Algorithm**: Replica Exchange
+**Sampling Algorithm**: [Replica Exchange](alg_EnergyBarrier_replicaEx.py)
 
 The simulation can be repeated by running:
 
     python alg_EnergyBarrier_replicaEx.py simulation_setups/replicaEx_EnergyBarrier.json
 
-In addition to the parameters set by the simple sampling algorithm, the following options are accepted:
+In addition to the parameters set by the equilibrium sampling algorithm, the configuration file [`replicaEx_EnergyBarrier.json`](simulation_setups/replicaEx_EnergyBarrier.json) highlights two new options available:
 
 ```JSON
 {
