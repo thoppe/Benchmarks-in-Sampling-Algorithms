@@ -6,14 +6,10 @@
 
 This is the initial setup of the toy problem of a one-dimensional symmetric double well potential, with a barrier height of 1kT.
 
-!["$U(x) = (x^2 - 1)^2$"](.equations/d49d41be587045bb189fe71b294076c1a630614532ef5daf38d1eccb4fe70025.png)
-
-The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
+<p align="center" class="mdequation"><img src=".equations/8df0e476ded358dc7b2784f8d8ab5861a383631a73dd32f678a8dcd46c07a3db.png" alt="$U(x) = (x^2 - 1)^2$" /></p>The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
 Given enough time, the trajectory of the particle samples the the invariant measure
 
-!["$\mu(x) = exp(-U(x)/kT) \mathcal{Z}^{-1}$"](.equations/667c811171342a982b552a3db148a3667b604d9e4497e610661c5d3a6b10de4b.png)
-
-## **Metric**: Energy barrier (exact versus estimated) 
+<p align="center" class="mdequation"><img src=".equations/96369d94eceb564256e94c7e5674bceb8a97ed26a72de85c9269f0dfab06ecd8.png" alt="$\mu(x) = exp(-U(x)/kT) \mathcal{Z}^{-1}$" /></p>## **Metric**: Energy barrier (exact versus estimated) 
 
 The energy barrier is estimated on both sides and compared to the exact value.
 The error term is the L1 average of these differences.
