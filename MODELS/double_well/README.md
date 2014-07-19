@@ -11,7 +11,7 @@ This is the initial setup of the toy problem of a one-dimensional symmetric doub
 The motion is overdamped and stochastic, hence the instantaneous momentum is simply a combination of Brownian motion and the underlying potential.
 The system evolves according to the stochastic differential equation:
 
-<p align="center" class="mdequation"><img src=".equations/b2304f4808aa680f5d85d94b293e3cc91bea3288231acb61cbcf6823d983adf2.png" alt="$ \dot{x}(t) = - \nabla U(x)/\zeta^{-1} + \sqrt{2 kT \zeta^{-1}} W(t)  $" /></p>
+<p align="center" class="mdequation"><img src=".equations/054ec5f599ddf08f1a95b9a50a7114287c7bb4ad88e837c599db5ebaf9fd95a6.png" alt="$ \dot{x}(t) = - \nabla U(x)\zeta^{-1} + \sqrt{2 kT \zeta^{-1}} W(t)  $" /></p>
 
 where zeta is the frictional coefficient times the mass and W is a delta-correlated stationary Gaussian process with zero-mean (simulating random thermal motion). 
 Given enough time, the trajectory of the particle samples the the invariant measure

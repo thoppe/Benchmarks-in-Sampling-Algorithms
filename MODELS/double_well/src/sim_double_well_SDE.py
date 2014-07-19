@@ -26,12 +26,29 @@ class SDE_euler_maruyama(dict):
         dx(t) = f(x,t)*dt + g(x,t)*dW
     here W is a Wigner process. Euler-Maruyama advances the SDE by the scheme:
         x(t+dt) = f(x,t)*dt + g(x,t)*normal()*np.sqrt(dt)
+
+    Parameters
+    ----------
+    dt : Integration timestep  [default = 0.001]
+    xi : Initial x position    [default = 0.0]
+    ti : Initial time          [default = 0.0]
+
+    SDE_f : f(x,t) : Must be set before step is called.
+    SDE_g : g(x,t) : Must be set before step is called.
+
+    Internal Parameters
+    ----------
+    n  : Number of integration calls [default = 0]
+
+    Raises
+    -------
+    SyntaxError
+        If functions f and g are not defined when running.
     '''
   
     def __init__(self, **simulation_args):
 
         # Set the defaults        
-        self["kT"] = 1.0
         self["dt"] = 0.001
 
         # The current position and time
@@ -68,6 +85,15 @@ class overdamped_langevin(SDE_euler_maruyama):
     ''' 
     Defines a generic one-dimensional Langevin overdamped system
     integrated by Euler-Maruyama.
+
+    This sets SDE_g to brownian motion defined by the friction_coeff.
+
+    Parameters
+    ----------
+    all parameters defined by SDE_euler_maruyama AND
+
+    friction_coeff : zeta      [default = 1.0]
+    kT : System temperature    [default = 1.0]
     '''
 
     def brownian_motion(self, x, t,**kw):
@@ -90,6 +116,12 @@ class double_well(overdamped_langevin):
     ''' 
     Defines a symmetric double well of height 1kT, under a 
     Langevin overdamped system integrated by Euler-Maruyama.
+
+    This sets SDE_f to the gradient of the double well potential.
+
+    Parameters
+    ----------
+    all parameters defined by SDE_euler_maruyama, overdamped_langevin and
     '''
 
     def invariant_measure(self,x):
@@ -113,6 +145,28 @@ class sim_double_well(double_well):
     ''' 
     Runs the simulation for the double well, 
     computes the metric at defined timesteps.
+
+
+    Parameters
+    ----------
+    all parameters defined by SDE_euler_maruyama, overdamped_langevin and
+
+    simulation_time : total integrated time     [default = 300.0]
+    SIM_metric_func : SIM(S) : Must be set before step is called, 
+        takes a sim_double_well as input.
+    
+    metric_check    : 
+        number of integration steps before metric function is called
+        [default = 1000]
+
+    Internal Parameters
+    ----------
+    simulation_step : Current count of simulation steps [default = 0]
+    .traj_x          : Recorded trajectory.
+    .traj_t          : Recorded time.
+    .traj_metric     : Recorded metric.
+    .traj_metric_t   : Recorded metric times.
+
     '''
 
     def __init__(self, **simulation_args):
@@ -181,10 +235,30 @@ class sim_double_well(double_well):
                 
                 logging.info("Simulation time %f" % self["ti"])
 
+#########################################################################
+
 def load_parameters(f_json):
     '''
-    Loads a JSON file with the system parameters in it.
+    Helper function that loads a JSON file with the system parameters in it.
     Checks if the metric function is a valid known function.
+
+    Parameters
+    ----------
+    f_json : string
+        Filename of the input json file
+
+    Raises
+    -------
+    ValueError
+        For problems loading the json file.
+
+    KeyError
+        For problems loading the metric.
+
+    Returns
+    -------
+    params : dict
+        A dictionary with the paramaters loaded.
     '''
 
     with open(f_json) as FIN:
@@ -195,7 +269,12 @@ def load_parameters(f_json):
             raise ValueError(err_msg)
 
         # Turn the loaded string SIM_metric_func into a function
-        func_name = "{}.{}".format("metrics", params["SIM_metric_func"])
-        params["SIM_metric_func"] = eval(func_name)
+        try:
+            func_name = "{}.{}".format("metrics", params["SIM_metric_func"])
+            params["SIM_metric_func"] = eval(func_name)
+        except Exception as ex:
+            err_msg = "Problem with metric: {} {}"
+            err_msg =  err_msg.format(func_name, ex)
+            raise KeyError(err_msg)
 
     return params

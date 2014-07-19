@@ -8,6 +8,16 @@ def average_activation_energy(S):
     of the double well with minima and maximum at [-1,0,1] respectively. 
     The enthalpy is estimated using kernel density estimation (KDE),
     slow but more accurate then a histogram. 
+
+    Parameters
+    ----------
+    S : sim_double_well, or any method that provides the trajectory
+        as S.traj_X.
+
+    Returns
+    -------
+    epsilon : float
+        The energy barrier average over both sides of the well.
     '''
 
     X = S.traj_x
