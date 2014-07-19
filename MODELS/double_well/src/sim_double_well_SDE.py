@@ -25,7 +25,7 @@ class SDE_euler_maruyama(dict):
     Integrates a stochastic differential equation of the form:
         dx(t) = f(x,t)*dt + g(x,t)*dW
     here W is a Wigner process. Euler-Maruyama advances the SDE by the scheme:
-        x(t+dt) = f(x,t)*dt + g(x,t)*normal()*np.sqrt(dt)
+        x(t+dt) = x(t) + f(x,t)*dt + g(x,t)*normal()*np.sqrt(dt)
 
     Parameters
     ----------
@@ -74,10 +74,15 @@ class SDE_euler_maruyama(dict):
 
         x,t,dt = self["xi"], self["ti"], self["dt"]
 
+        # Euler-Maruyama scheme, first compute f(x,t)*dt
         dx  = self["SDE_f"](x,t,**self)*dt
+
+        # then compute g(x,t)*normal()*np.sqrt(dt)
         dx += self["SDE_g"](x,t,**self)*normal()*np.sqrt(dt)
 
+        # now adjust the position by this amount
         self["xi"] += dx
+
         self["ti"] += dt
         self["n"]  += 1
 
