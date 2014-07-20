@@ -5,9 +5,9 @@ import json, argparse, logging
 import numpy as np
 
 desc = '''
-SAMPLING METHOD: Standard
+SAMPLING METHOD: Equilibrium
 This simulation is the test case, e.g. 
-the standard dynamics with no enchanced sampling.
+standard dynamics with no enchanced sampling.
 
 Computes the energy barrier between a double well using overdamped 
 Langevin dynamics with an Euler-Maruyama SDE.

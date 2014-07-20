@@ -3,7 +3,7 @@ import seaborn as sns
 import numpy as np
 import glob
 
-results_list = ["results/example_EnergyBarrier*",
+results_list = ["results/equilibrium_EnergyBarrier*",
                 "results/replicaEx_EnergyBarrier**",]
 labels_list  = ["Equilibrium sampling", "Replica Exchange x5"]
 

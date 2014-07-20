@@ -46,13 +46,13 @@ The simulation shows a naive way of calculating the energy barrier, simply let t
 Shown below is a sample trajectory, the estimated potential, the error and the observed versus expected visits to each position. 
 While the estimated potential has a large absolute error, the estimated energy difference between the two wells converges quickly since the potential is simple.
 
-![](figures/example_traj.png)
+![](figures/equilibrium_traj.png)
 
 The simulation can be repeated by running:
 
-    python alg_EnergyBarrier_equilibrium.py simulation_setups/example_EnergyBarrier.json
+    python alg_EnergyBarrier_equilibrium.py simulation_setups/equilibrium_EnergyBarrier.json
 
-Where the configuration file [`example_EnergyBarrier.json`](simulation_setups/example_EnergyBarrier.json) is given by:
+Where the configuration file [`equilibrium_EnergyBarrier.json`](simulation_setups/equilibrium_EnergyBarrier.json) is given by:
 
 ```JSON
 {
@@ -65,7 +65,7 @@ Where the configuration file [`example_EnergyBarrier.json`](simulation_setups/ex
     "metric_check"   : 10000,
  
     "SIM_metric_func": "average_activation_energy",
-    "f_results": "results/example_EnergyBarrier_r{replica_n}.txt",
+    "f_results": "results/equilibrium_EnergyBarrier_r{replica_n}.txt",
 
     "show_plot" : false
 }
