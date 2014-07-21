@@ -65,7 +65,7 @@ Where the configuration file [`equilibrium_EnergyBarrier.json`](simulation_setup
     "metric_check"   : 10000,
  
     "SIM_metric_func": "average_activation_energy",
-    "f_results": "results/equilibrium_EnergyBarrier_r{replica_n}.txt",
+    "f_trajectory"   : "results/equilibrium_EnergyBarrier_r{replica_n}.txt",
 
     "show_plot" : false
 }

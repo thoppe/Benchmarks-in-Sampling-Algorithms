@@ -5,7 +5,9 @@ from scipy.integrate import quad
 import pylab as plt
 import seaborn as sns
 
-def plot_simulation(S, err):
+from metrics_double_well import load_trajectory, load_results
+
+def plot_simulation(S):
 
     xbounds = 2.5
     xp = np.linspace(-xbounds,xbounds,1000)
@@ -14,12 +16,13 @@ def plot_simulation(S, err):
     ax = axes[0,0]
     ax.set_title(r"Particle trajectory")
 
-    T,X = np.array(S.traj_t), np.array(S.traj_x)
+    T,X = load_trajectory(S)
+    epsilon_T, epsilon = load_results(S)
 
-    # Plot only the last 100 s of simulation time
+    # Plot only the last 25 s of simulation time
     idx = T > (T.max()-25)
-        
     ax.plot(T[idx],X[idx])
+
     ax.set_xlim(min(T[idx]),max(T[idx]))
     ax.set_xlabel(r"$t$")
     ax.set_ylabel(r"$x$")
@@ -31,7 +34,7 @@ def plot_simulation(S, err):
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$U(x)$")
 
-    # Plot the estimated potential
+    # Plot the estimated potential as a KDE
     H = KDE(X)
     U = -np.log(H(xp))*S["kT"]
 
@@ -53,10 +56,10 @@ def plot_simulation(S, err):
     ax.legend(loc=0)
 
     ax = axes[1,0]
-    err_t = S.traj_metric_t
-    ax.set_title(r"$L_1$ error, $\int \ |\Delta U_{ex} - \Delta U_{approx}| dx$")
-    ax.plot(err_t,err)
-    ax.set_xlim(min(T),max(T))
+    text = r"$L_1$ error, $\int \ |\Delta U_{ex} - \Delta U_{approx}| dx$"
+    ax.set_title(text)
+    ax.plot(epsilon_T,epsilon)
+    ax.set_xlim(min(epsilon_T),max(epsilon_T))
     ax.set_ylim(ymin=0,ymax=1)
     plt.tight_layout()
     plt.show()

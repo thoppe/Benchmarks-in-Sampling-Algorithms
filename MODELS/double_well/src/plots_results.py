@@ -16,12 +16,9 @@ for c,label,phrase in zip(color_list,
     file_list = glob.glob(phrase)
 
     raw_data = np.array([np.loadtxt(f_result) for f_result in file_list])
+    
     err  = raw_data[:,:, 1]
-    time = raw_data[0,:, 0]
-
-    # Manual correction
-    #if "replica" in phrase: 
-    #    time *= raw_data.shape[0]
+    time = raw_data[0,:, 0] * .001 # (manual correction)
 
     sns.tsplot(err,time, color=c, condition=label)
 

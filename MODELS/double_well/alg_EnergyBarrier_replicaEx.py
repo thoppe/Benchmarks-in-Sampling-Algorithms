@@ -1,5 +1,5 @@
 from src.sim_double_well_SDE import sim_double_well, load_parameters
-from src.metrics_double_well import average_activation_energy
+from src.metrics_double_well import activation_energy
 
 import json, argparse, logging, random
 import numpy as np
@@ -24,11 +24,14 @@ logging.root.setLevel(logging.INFO)
 # Load the simulation parameters
 params = load_parameters(cargs["parameter_file_json"])
 
-# Create a simulation for every temperature
+# Create a simulation for every temperature, set the filenames
 REPLICAS = []
-for kT in params["kT_list"]:
+for replica_n,kT in enumerate(params["kT_list"]):
     p = params.copy()
     p["kT"] = kT
+    p["replica_n"] = replica_n
+    p["f_trajectory"] = p["f_trajectory"].format(**p)
+    p["f_results"] = p["f_results"].format(**p)
     REPLICAS.append( sim_double_well(**p) )
 
 # Let the systems equlibrate on their own
@@ -56,27 +59,33 @@ while not REPLICAS[0].is_complete():
         exchange_replicas(s0,s1)
 
 # Compute the exact value for error measurements
-Um0, Ub, Um1 = map(REPLICAS[0]["potential"], [-1,0,1])
-exact_avg_activation_energy = np.array([Ub-Um0, Ub-Um1]).mean()
+Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
+exact_activation_energy = np.array([Ub-Um0, Ub-Um1])
 
 # Compute the error
 for k,S in enumerate(REPLICAS): 
-    err_T = S.traj_metric_t
-    err   = np.abs((np.array(S.traj_metric) - exact_avg_activation_energy))
 
-    # Format the output filename
-    f_out = S["f_results"].format(replica_n = k)
-    np.savetxt(f_out,np.array([err_T, err]).T)
+    # Close any files open
+    S.close()
+
+    # Measure the barrier height from the trajectory
+    estimated_activation_energy, time_steps = activation_energy(**S)
+
+    # Compute the error
+    epsilon = np.abs(estimated_activation_energy-exact_activation_energy)
+
+    # Average over the two wells
+    epsilon = epsilon.sum(axis=1)
+
+    # Save the results
+    np.savetxt(S["f_results"],np.array([time_steps, epsilon]).T)
+
 
 # Plot the results if asked
 if "show_plot" in params and params["show_plot"]:
     from src.plots_double_well import plot_simulation
-
-    err_T = S.traj_metric_t
-    err   = np.abs((np.array(S.traj_metric) - exact_avg_activation_energy))
-
     for S in REPLICAS: 
-        plot_simulation(S, err)
+        plot_simulation(S)
     
     
     

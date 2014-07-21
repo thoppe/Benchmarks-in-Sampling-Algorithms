@@ -1,5 +1,5 @@
 from src.sim_double_well_SDE import sim_double_well, load_parameters
-from src.metrics_double_well import average_activation_energy
+from src.metrics_double_well import activation_energy
 
 import json, argparse, logging
 import numpy as np
@@ -25,30 +25,41 @@ logging.root.setLevel(logging.INFO)
 # Load the simulation parameters
 params = load_parameters(cargs["parameter_file_json"])
 
+# Set the filenames
+params["f_trajectory"] = params["f_trajectory"].format(**cargs)
+params["f_results"] = params["f_results"].format(**cargs)
+
 S = sim_double_well(**params)
 
 # First equlibrate the system
 S.run(params["warmup_steps"], record=False)
 
-# Now run it
+# Run the simulation
 S.run()
+
+# Close any files open
+S.close()
 
 # Compute the exact value for error measurements
 Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
-exact_avg_activation_energy = np.array([Ub-Um0, Ub-Um1]).mean()
+exact_activation_energy = np.array([Ub-Um0, Ub-Um1])
+
+# Measure the barrier height from the trajectory
+estimated_activation_energy, time_steps = activation_energy(**S)
 
 # Compute the error
-err_T = S.traj_metric_t
-err   = np.abs((np.array(S.traj_metric) - exact_avg_activation_energy))
+epsilon = np.abs(estimated_activation_energy-exact_activation_energy)
+
+# Average over the two wells
+epsilon = epsilon.sum(axis=1)
 
 # Save the results
-f_save = params["f_results"].format(**cargs)
-np.savetxt(f_save,np.array([err_T, err]).T)
+np.savetxt(S["f_results"],np.array([time_steps, epsilon]).T)
 
 # Plot the results if asked
 if "show_plot" in params and params["show_plot"]:
     from src.plots_double_well import plot_simulation
-    plot_simulation(S, err)
+    plot_simulation(S)
     
     
     

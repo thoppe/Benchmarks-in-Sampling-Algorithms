@@ -1,4 +1,4 @@
-import json, logging
+import json, logging, os
 import numpy as np
 from numpy.random import normal
 import metrics_double_well as metrics
@@ -149,28 +149,21 @@ class double_well(overdamped_langevin):
 class sim_double_well(double_well):
     ''' 
     Runs the simulation for the double well, 
-    computes the metric at defined timesteps.
-
+    saves the output to file.
 
     Parameters
     ----------
     all parameters defined by SDE_euler_maruyama, overdamped_langevin and
 
     simulation_time : total integrated time     [default = 300.0]
-    SIM_metric_func : SIM(S) : Must be set before step is called, 
-        takes a sim_double_well as input.
     
-    metric_check    : 
-        number of integration steps before metric function is called
-        [default = 1000]
+    f_trajectory    : output file to save trajectory data 
+                      [default=None]
+    simulation_time : total time to integrate if self.run is called
 
     Internal Parameters
     ----------
     simulation_step : Current count of simulation steps [default = 0]
-    .traj_x          : Recorded trajectory.
-    .traj_t          : Recorded time.
-    .traj_metric     : Recorded metric.
-    .traj_metric_t   : Recorded metric times.
 
     '''
 
@@ -182,39 +175,26 @@ class sim_double_well(double_well):
         # Total time to integrate (not number of integration steps)
         self["simulation_time"] = 300.0
 
-        # Check the metric every n time_steps
-        self["metric_check"] = 1000
-
         # Current simulation step
         self["simulation_step"] = 0
 
-        # Metric function to run (MUST BE SET)
-        self["SIM_metric_func"] = None
+        # File to save trajectory
+        self["f_trajectory"] = "output.txt"
 
         # Update the system parameters if passed
         self.update( simulation_args )
 
-        # Full trajectory
-        self.traj_x, self.traj_t = [], []
-        
-        # Metric trajectory
-        self.traj_metric, self.traj_metric_t = [], []
-
-    def check(self):
-        # Make sure functions have been defined
-        if not (self["SIM_metric_func"]):
-            msg = "Must define a metric function"
-            raise SyntaxError(msg)
+        # Create the file object, if not possible skip
+        self.FOUT = None
+        try:
+            self.FOUT = open(self["f_trajectory"],'w')
+        except:
+            pass
 
     def record_traj(self):
-        self.traj_x.append( self["xi"] )
-        self.traj_t.append( self["ti"] )       
-
-    def record_metric(self):
-        self.check()
-        val = self["SIM_metric_func"](self)
-        self.traj_metric.append( val )
-        self.traj_metric_t.append( self["ti"] )
+        if self.FOUT:
+            out_str = "{:.5f} {:.7f}\n"
+            self.FOUT.write(out_str.format(self["ti"],self["xi"]))
 
     def is_complete(self):
         return self["ti"] >= self["simulation_time"]
@@ -231,14 +211,13 @@ class sim_double_well(double_well):
             if record: self.record_traj()
             self["simulation_step"] += 1
             run_counter += 1
-            
-            if ((self["simulation_step"]) and
-                (self["simulation_step"] % self["metric_check"]) == 0):
 
-                # Take a measurement
-                if record: self.record_metric()
-                
+            if run_counter%int(1/self["dt"])==0:
                 logging.info("Simulation time %f" % self["ti"])
+
+    def close(self):
+        if self.FOUT:
+            self.FOUT.close()
 
 #########################################################################
 
@@ -246,6 +225,7 @@ def load_parameters(f_json):
     '''
     Helper function that loads a JSON file with the system parameters in it.
     Checks if the metric function is a valid known function.
+    Also creates the directory "results" if it doesn't exist.
 
     Parameters
     ----------
@@ -281,5 +261,9 @@ def load_parameters(f_json):
             err_msg = "Problem with metric: {} {}"
             err_msg =  err_msg.format(func_name, ex)
             raise KeyError(err_msg)
+
+    target_dir = "results"
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
 
     return params

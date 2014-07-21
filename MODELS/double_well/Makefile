@@ -12,5 +12,5 @@ sim_replicaEx:
 plot_results:
 	python src/plots_results.py
 
-clean_results:
-	rm -rvf results/*
+clean:
+	rm -rvf results/* trajectory/*
