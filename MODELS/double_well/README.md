@@ -58,14 +58,20 @@ Where the configuration file [`equilibrium_EnergyBarrier.json`](simulation_setup
 {
     "kT": 1.0,
     "friction_coeff" : 0.1,
+    "dt" : 0.001,
 
-    "dt" : 0.0001,
+    "simulation_time": 800,
 
-    "simulation_time": 2000,
-    "metric_check"   : 10000,
+    "metric_check"   : 1000,
+    "warmup_steps"   : 50000,
  
-    "SIM_metric_func": "average_activation_energy",
-    "f_trajectory"   : "results/equilibrium_EnergyBarrier_r{replica_n}.txt",
+    "SIM_metric_func": "activation_energy",
+    "f_trajectory"   : "trajectory/equilibrium_EnergyBarrier_r{replica_n}.txt",
+    "f_results"      : "results/equilibrium_EnergyBarrier_r{replica_n}.txt",
+
+    "histogram_bins" : 1000,
+    "histogram_min"  : -2.5,
+    "histogram_max"  :  2.5,
 
     "show_plot" : false
 }
