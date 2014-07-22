@@ -4,11 +4,28 @@ Originally proposed at the 2014 Telluride Science Research Center: [_Advances in
 The goal of this project is to develop a suite of canonical test problems where various sampling algorithms can be compared quantitatively.
 Since sampling algorithms are not always directly comparable, we separate the problem sets into several groups.
 
+Currently, there is only a single model setup up with a limited number of sampling algorithms.
+This model is to serve as a testing ground for the more complicated systems.
+Please comment and suggest improvements to this model:
+
+## [Double well](MODELS/double_well)
+
+To get started, clone the repository, move the the double well directory and run the example.
+
+    git clone https://github.com/thoppe/Benchmarks-in-Sampling-Algorithms.git
+    cd Benchmarks-in-Sampling-Algorithms.git
+    cd MODELS
+    cd double_well
+    make sim_example
+    
+-----------------------------------------
+
+
 ## Proposed model systems
 
 ### Simple potentials
 
-+ Double well in 1D, 2D, 3D
++ [Double well](MODELS/double_well) in 1D, 2D, 3D
 + On/Off lattice polymers with simple potentials e.g. Go models or MJ interactions
 + Muller-Brown like: polynomial or exponential version
 
