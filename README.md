@@ -10,6 +10,14 @@ Please comment and suggest improvements to this model:
 
 ## [Double well](MODELS/double_well)
 
+To get started, clone the repository, move the the double well directory and run the example.
+
+    git clone https://github.com/thoppe/Benchmarks-in-Sampling-Algorithms.git
+    cd Benchmarks-in-Sampling-Algorithms.git
+    cd MODELS
+    cd double_well
+    make sim_example
+    
 -----------------------------------------
 
 

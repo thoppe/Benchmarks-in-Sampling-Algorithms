@@ -1,0 +1,19 @@
+{
+    "kT": 1.0,
+    "friction_coeff" : 0.1,
+    "dt" : 0.001,
+
+    "simulation_time": 20,
+    "warmup_steps"   : 500,
+    "metric_check"   : 100,
+ 
+    "SIM_metric_func": "activation_energy",
+    "f_trajectory"   : "trajectory/example_r{replica_n}.txt",
+    "f_results"      : "results/example_r{replica_n}.txt",
+
+    "histogram_bins" : 1000,
+    "histogram_min"  : -2.5,
+    "histogram_max"  :  2.5,
+
+    "show_plot" : true
+}

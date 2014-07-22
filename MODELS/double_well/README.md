@@ -32,13 +32,19 @@ Given a histogram H(x), that records the number of visits to each state one can 
 
 <p align="center" class="mdequation"><img src=".equations/85b3044977c3d55392496cd69131615af66aca3d41af7c3d9981ddd0c6447e8e.png" alt="$V(x) \approx -kT \log( H(x) ) $" /></p>
 
-The histogram can be a simple bin, or alternatively one can use a kernel density estimation on the entire trajectory.
+The histogram can be a simple bin, or alternatively one can use a kernel density estimation on the entire trajectory. For now, we used a binned histogram for the computations.
 
 #### Results: Energy Barrier
 
 The results of the sampling algorithms are shown below:
 
 ![](figures/convergence_EnergyBarrier.png)
+
+After running the simulations, this plot can be reproduced by running
+
+    python src/plots_results.py
+
+Note: This does not properly scale the time needed for replica exchange yet.
 
 **Sampling Algorithm**: [Equilibrium](alg_EnergyBarrier_equilibrium.py)
 
@@ -52,7 +58,11 @@ The simulation can be repeated by running:
 
     python alg_EnergyBarrier_equilibrium.py simulation_setups/equilibrium_EnergyBarrier.json
 
-Where the configuration file [`equilibrium_EnergyBarrier.json`](simulation_setups/equilibrium_EnergyBarrier.json) is given by:
+or simply:
+
+    make sim_equilibrium
+
+The configuration file [`equilibrium_EnergyBarrier.json`](simulation_setups/equilibrium_EnergyBarrier.json) sets the system parameters:
 
 ```JSON
 {
@@ -77,17 +87,23 @@ Where the configuration file [`equilibrium_EnergyBarrier.json`](simulation_setup
 }
 ```
 
+With `show_plot` set to `true` the trajectory plot above is reproduced. 
+
 **Sampling Algorithm**: [Replica Exchange](alg_EnergyBarrier_replicaEx.py)
 
 The simulation can be repeated by running:
 
     python alg_EnergyBarrier_replicaEx.py simulation_setups/replicaEx_EnergyBarrier.json
 
+or the shortcut
+
+    make sim_replicaEx
+
 In addition to the parameters set by the equilibrium sampling algorithm, the configuration file [`replicaEx_EnergyBarrier.json`](simulation_setups/replicaEx_EnergyBarrier.json) highlights two new options available:
 
 ```JSON
 {
-    "kT_list" : [0.8,0.9,1,1.1,1.2],
+    "kT_list" : [0.2,0.5,1.5],
     "exchange_steps" : 30000,
 }
 ```

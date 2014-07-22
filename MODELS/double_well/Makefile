@@ -9,8 +9,11 @@ parallel_equilibrium:
 sim_replicaEx:
 	python alg_EnergyBarrier_replicaEx.py simulation_setups/replicaEx_EnergyBarrier.json
 
+sim_example:
+	python alg_EnergyBarrier_equilibrium.py simulation_setups/example_EnergyBarrier.json
+
 plot_results:
 	python src/plots_results.py
 
 clean:
-	rm -rvf results/* trajectory/*
+	rm -rvf results/* trajectory/*.txt
