@@ -99,6 +99,7 @@ class overdamped_langevin(SDE_euler_maruyama):
 
     friction_coeff : zeta      [default = 1.0]
     kT : System temperature    [default = 1.0]
+    bias_potential             [default: returns 0.0]
     '''
 
     def brownian_motion(self, x, t,**kw):
@@ -133,7 +134,7 @@ class double_well(overdamped_langevin):
         return np.exp(-self.U(x)/self['kT'])
 
     def U(self,x,**kw):
-        return (x**2-1.0)**2 
+        return (x**2-1.0)**2 + self["bias_potential"](x,**kw)
     
     def force(self,x,t,**kw):
         dU = 4*x*(x**2-1)
@@ -142,6 +143,7 @@ class double_well(overdamped_langevin):
     def __init__(self, **simulation_args):
         super(double_well, self).__init__(**simulation_args)
 
+        self["bias_potential"] = lambda x,**kw: 0.0 # No bias initally set
         self["potential"] = self.U
         self["SDE_f"] = self.force   
 

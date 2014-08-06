@@ -1,5 +1,8 @@
 # Run the simulations
 
+sim_umbrella:
+	python alg_EnergyBarrier_Umbrella.py simulation_setups/umbrella_EnergyBarrier.json
+
 sim_equilibrium:
 	python alg_EnergyBarrier_equilibrium.py simulation_setups/equilibrium_EnergyBarrier.json
 
@@ -17,3 +20,4 @@ plot_results:
 
 clean:
 	rm -rvf results/* trajectory/*.txt
+
