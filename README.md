@@ -17,6 +17,10 @@ To get started, clone the repository, move the the double well directory and run
     cd MODELS
     cd double_well
     make sim_example
+
+## [Alanine Dipeptide](MODELS/alanine_dipeptide)
+
+This is a work in progress.
     
 -----------------------------------------
 
