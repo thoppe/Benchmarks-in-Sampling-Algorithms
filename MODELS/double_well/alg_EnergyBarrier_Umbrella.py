@@ -5,7 +5,7 @@ import json, argparse, logging
 import numpy as np
 
 desc = '''
-SAMPLING METHOD: Umbrella
+SAMPLING METHOD: Umbrella Sampling with Harmonic Bias Potentials
 To be written...
 
 Computes the energy barrier between a double well using overdamped 
@@ -26,7 +26,7 @@ params = load_parameters(cargs["parameter_file_json"])
 
 # Create a simulation for every temperature, set the filenames
 REPLICAS = []
-for replica_n,_ in enumerate(params["umbrella_centers"]):
+for replica_n,_ in enumerate(params["umbrella_center"]):
     p = params.copy()
     p["replica_n"] = replica_n
     p["f_trajectory"] = p["f_trajectory"].format(**p)
@@ -34,22 +34,27 @@ for replica_n,_ in enumerate(params["umbrella_centers"]):
     REPLICAS.append( sim_double_well(**p) )
 
 # Modify the potential of each simulation
-for S in REPLICAS:
-    print S
-    exit()
+for n,S in enumerate(REPLICAS):
+    S["umbrella_strength"] = S["umbrella_strength"][n]
+    S["umbrella_center"]   = S["umbrella_center"][n]
+
+    def bias_potential(x,**kw) : 
+        return (kw["umbrella_strength"]/2)*(x-kw["umbrella_center"])**2
+    def bias_force(x,t,**kw)   : 
+        return -kw["umbrella_strength"]*(x-kw["umbrella_center"])
+    S["bias_potential"] = bias_potential
+    S["bias_force"]     = bias_force
+
+# Let the systems equlibrate on their own
+for S in REPLICAS: 
+    S.run(params["warmup_steps"], record=False)
+
+for S in REPLICAS: 
+    S.run()
+    S.close()
+
 exit()
-
-
-S = sim_double_well(**params)
-
-# First equlibrate the system
-S.run(params["warmup_steps"], record=False)
-
-# Run the simulation
-S.run()
-
-# Close any files open
-S.close()
+    
 
 # Compute the exact value for error measurements
 Um0, Ub, Um1 = map(S["potential"], [-1,0,1])

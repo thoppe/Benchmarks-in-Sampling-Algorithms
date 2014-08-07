@@ -6,21 +6,13 @@
     "umbrella_center"  : [-1,0,1],
     "umbrella_strength" : [2,2,2],
 
-    "simulation_time": 800,
-
     "metric_check"   : 1000,
     "warmup_steps"   : 50000,
-
-    "warmup_steps"   : 0,
-    "simulation_time": 100,
+    "simulation_time": 1000,
  
     "SIM_metric_func": "activation_energy",
     "f_trajectory"   : "trajectory/umbrella_EnergyBarrier_r{replica_n}.txt",
     "f_results"      : "results/umbrella_EnergyBarrier_r{replica_n}.txt",
-
-    "histogram_bins" : 1000,
-    "histogram_min"  : -2.5,
-    "histogram_max"  :  2.5,
 
     "show_plot" : false
 }
