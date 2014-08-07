@@ -99,7 +99,6 @@ class overdamped_langevin(SDE_euler_maruyama):
 
     friction_coeff : zeta      [default = 1.0]
     kT : System temperature    [default = 1.0]
-    bias_potential             [default: returns 0.0]
     '''
 
     def brownian_motion(self, x, t,**kw):
@@ -127,23 +126,30 @@ class double_well(overdamped_langevin):
 
     Parameters
     ----------
-    all parameters defined by SDE_euler_maruyama, overdamped_langevin and
+    all parameters defined by SDE_euler_maruyama, overdamped_langevin
+
+    bias_potential             [default: returns 0.0]
+    bias_force                 [default: returns 0.0]
     '''
 
     def invariant_measure(self,x):
         return np.exp(-self.U(x)/self['kT'])
 
     def U(self,x,**kw):
-        return (x**2-1.0)**2 + self["bias_potential"](x,**kw)
+        E = (x**2-1.0)**2 
+        E_bias = self["bias_potential"](x,**kw)
+        return E + E_bias
     
     def force(self,x,t,**kw):
-        dU = 4*x*(x**2-1)
-        return -dU/self["friction_coeff"]
+        dU      = -4*x*(x**2-1)
+        dU_bias = self["bias_force"](x,t,**kw)
+        return (dU+dU_bias)/self["friction_coeff"]
 
     def __init__(self, **simulation_args):
         super(double_well, self).__init__(**simulation_args)
 
-        self["bias_potential"] = lambda x,**kw: 0.0 # No bias initally set
+        self["bias_potential"] = lambda x,**kw: 0.0 # No bias initially set
+        self["bias_force"]     = lambda x,**kw: 0.0 # No bias initially set
         self["potential"] = self.U
         self["SDE_f"] = self.force   
 

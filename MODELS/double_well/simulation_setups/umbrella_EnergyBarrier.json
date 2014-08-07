@@ -3,14 +3,16 @@
     "friction_coeff" : 0.1,
     "dt" : 0.001,
 
-    "umbrella_centers" : [-1,0,1],
-    "umbrella_widths"  : [1,1,1],
-
+    "umbrella_center"  : [-1,0,1],
+    "umbrella_strength" : [2,2,2],
 
     "simulation_time": 800,
 
     "metric_check"   : 1000,
     "warmup_steps"   : 50000,
+
+    "warmup_steps"   : 0,
+    "simulation_time": 100,
  
     "SIM_metric_func": "activation_energy",
     "f_trajectory"   : "trajectory/umbrella_EnergyBarrier_r{replica_n}.txt",
