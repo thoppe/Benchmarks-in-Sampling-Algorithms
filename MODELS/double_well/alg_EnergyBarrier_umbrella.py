@@ -45,13 +45,24 @@ for n,S in enumerate(REPLICAS):
     S["bias_potential"] = bias_potential
     S["bias_force"]     = bias_force
 
-# Let the systems equlibrate on their own
-for S in REPLICAS: 
-    S.run(params["warmup_steps"], record=False)
+import multiprocessing
+def equilibrate(i): 
+    REPLICAS[i].run(params["warmup_steps"], record=False)
+    return i
 
-for S in REPLICAS: 
-    S.run()
-    S.close()
+def run_system(i):
+    REPLICAS[i].run()
+    REPLICAS[i].close()
+    return i
+
+P = multiprocessing.Pool()
+sol = P.imap(equilibrate, range(len(REPLICAS)))
+for n in sol: print "Equilibrated ", n
+
+sol = P.imap(run_system, range(len(REPLICAS)))
+for n in sol: print "Completed ", n
+P.close(); P.join()
+
 
 exit()
     
