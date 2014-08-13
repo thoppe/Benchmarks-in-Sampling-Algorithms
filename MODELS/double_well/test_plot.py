@@ -3,6 +3,7 @@ import seaborn as sns
 import numpy as np
 import glob,os
 
+from src.sim_double_well_SDE import load_parameters
 
 F_TRAJ = glob.glob("trajectory/umbrella_EnergyBarrier_r*")
 for f in F_TRAJ:
@@ -12,100 +13,75 @@ for f in F_TRAJ:
         time, pos = np.loadtxt(f).T
         np.save(f_np,pos)
 
+
+# Number of integration bins
+integration_bins = 10000
+
+params = load_parameters("simulation_setups/umbrella_EnergyBarrier.json")
+
 F_TRAJ = sorted(glob.glob("umbrella_EnergyBarrier_r*.npy"))
-X = np.linspace(-3,3,1000)
-Y = [np.load(f)[50000:] for f in F_TRAJ]
-centers =  [-2,-1.5,-1,-0.5,0.0,0.5,1.5,2.0]
-umbrella_strength = 2.0
+X = np.linspace(-1.5,1.5,integration_bins)
+Y = [np.load(f)[:] for f in F_TRAJ]
 
-# Try WHAM!
-import uwham
-Nk = [len(y) for y in Y]
-print Nk
+ubounds  = params["umbrella_bounds"]
+uwindows = params["umbrella_windows"]
+centers  = np.linspace(ubounds[0],ubounds[1],uwindows)
+umbrella_strength = params["umbrella_strength"]
 
+beta = 1.0/params["kT"]
 
-
-print "HERE!"
-exit()
-
-
-def weights(X, Y):
-    mu,sigma = Y.mean(), np.sqrt(Y.var())
+def weights(X, mu, var):
+    sigma = np.sqrt(var)
     w = np.exp(-0.5*(((X-mu)/sigma)**2))
-    return w*(sigma*np.sqrt(2*np.pi))
+    return w/(sigma*np.sqrt(2*np.pi))
 
-def diff_free_energy(X, Y, k, x0, kT=1.0):
-    mu,variance = Y.mean(), Y.var()
-    A = kT*((X-mu)/variance) - k*(X-x0)
+def diff_free_energy(X, mu, var, idx):
+    beta = 1.0/params["kT"]
+    x0 = centers[idx]
+    k  = params["umbrella_strength"]
+    A = (1/beta)*((X-mu)/var) + k*(X-x0)
     return A
 
+'''
 Y = [np.load(f)[:] for f in F_TRAJ]
-#for k,y in enumerate(Y):
-#    print k
-#    label = "center = %s"%centers[k]
-#    sns.distplot(y,label=label,hist=False)
-#plt.legend()
-#plt.show()
-#exit()
+for k,y in enumerate(Y):
+    print k
+    label = "center = %s"%centers[k]
+    sns.distplot(y,label=label,hist=False)
+plt.legend()
+plt.show()
+exit()
 #for y in Y:
 #    print len(y)
 #exit()
+'''
 
+observed_mean = [y.mean() for y in Y]
+observed_var  = [y.var()  for y in Y]
 
-P = np.array([weights(X,y) for y in Y])
-#P /= P.sum(axis=0)
+P = [weights(X,mu,var) for (mu,var) in zip(observed_mean, observed_var)]
+P = np.array(P)
+P /= P.sum(axis=0)
 
-dA = [diff_free_energy(X,y,
-                       k=umbrella_strength,
-                       x0=c) for c,y in zip(centers, Y)]
+dA = [diff_free_energy(X,mu,var,idx) for idx,(mu,var) in 
+      enumerate(zip(observed_mean, observed_var))]
+
 dA_avg = (dA*P).sum(axis=0)
 
 from scipy.integrate import cumtrapz, simps
-#A = cumtrapz(dA_avg,X)
-#A-= A.min()
-#print A
-#exit()
-'''
-from scipy.integrate import cumtrapz, simps
-F_Y, F_X = [],[]
-k = 20
-for x,y in zip(zip(X,X[k:]),zip(dA_avg,dA_avg[k:])):
-    #x_grid = np.array([x0,x1])
-    #y_grid = np.array([a0,a1])
-    F_X.append(np.array(x).mean())
-    F_Y.append(simps(y,x))
-'''
-#plt.plot(X,dA_avg)
+A = cumtrapz(dA_avg,X)
 
-DP = [np.log(p)/(X[0]-X[1]) for p in P]
-
-for y in DP:
-    plt.plot(X,y)
-
-
-#plt.ylim(-0.1, 1.2)
-#plt.plot(A)
-plt.show()
-
-exit()
-
-#A = cumtrapz(dA_avg,X,initial=0)
+# Center for visual appeal
 #A -= A.min()
+#A -= A[5000] -1
 
-#plt.plot(X,A)
-##plt.ylim(-0.1, 1.2)
-#plt.show()
-exit()
-#print dA
-#exit()
-#print P
-#exit()
-for p in P: plt.plot(X,p)
-#for p in dA: plt.plot(X,p)
+
+def U(x,**kw): return (x**2-1.0)**2 
+
+#plt.plot(X,dA_avg,label="Umbrella integration")
+#plt.plot(X,U(X),'--',label="Exact")
+plt.plot(X[1:],A,label="Umbrella integration")
+#plt.xlim(-2,2)
+#plt.ylim(0,2)
+plt.legend(loc="best")
 plt.show()
-exit()
-
-plt.show()
-exit()
-#    sns.distplot(pos)
-

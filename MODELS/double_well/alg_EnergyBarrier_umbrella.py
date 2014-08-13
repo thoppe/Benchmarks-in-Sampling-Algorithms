@@ -26,7 +26,7 @@ params = load_parameters(cargs["parameter_file_json"])
 
 # Create a simulation for every temperature, set the filenames
 REPLICAS = []
-for replica_n,_ in enumerate(params["umbrella_center"]):
+for replica_n in range(params["umbrella_windows"]):
     p = params.copy()
     p["replica_n"] = replica_n
     p["f_trajectory"] = p["f_trajectory"].format(**p)
@@ -34,9 +34,13 @@ for replica_n,_ in enumerate(params["umbrella_center"]):
     REPLICAS.append( sim_double_well(**p) )
 
 # Modify the potential of each simulation
+ubounds  = REPLICAS[0]["umbrella_bounds"]
+uwindows = REPLICAS[0]["umbrella_windows"]
+U_X = np.linspace(ubounds[0],ubounds[1],uwindows)
 for n,S in enumerate(REPLICAS):
-    S["umbrella_strength"] = S["umbrella_strength"][n]
-    S["umbrella_center"]   = S["umbrella_center"][n]
+        
+    S["umbrella_strength"] = S["umbrella_strength"]
+    S["umbrella_center"]   = U_X[n]
 
     def bias_potential(x,**kw) : 
         return (kw["umbrella_strength"]/2)*(x-kw["umbrella_center"])**2
