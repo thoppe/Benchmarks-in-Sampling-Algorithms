@@ -137,12 +137,12 @@ class double_well(overdamped_langevin):
 
     def U(self,x,**kw):
         E = (x**2-1.0)**2 
-        E_bias = self["bias_potential"](x,**kw)
+        E_bias = self["bias_potential"](x,**self)
         return E + E_bias
     
     def force(self,x,t,**kw):
         dU      = -4*x*(x**2-1)
-        dU_bias = self["bias_force"](x,t,**kw)
+        dU_bias = self["bias_force"](x,t,**self)
         return (dU+dU_bias)/self["friction_coeff"]
 
     def __init__(self, **simulation_args):
