@@ -4,12 +4,12 @@
     "dt" : 0.001,
 
     "umbrella_bounds"   : [-2, 2],
-    "umbrella_windows"  : 20,
-    "umbrella_strength" : 50,
+    "umbrella_windows"  : 16,
+    "umbrella_strength" : 20,
 
     "metric_check"   : 1000,
     "warmup_steps"   : 5000,
-    "simulation_time": 500,
+    "simulation_time": 100,
  
     "SIM_metric_func": "activation_energy",
     "f_trajectory"   : "trajectory/umbrella_EnergyBarrier_r{replica_n}.txt",

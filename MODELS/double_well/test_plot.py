@@ -4,8 +4,9 @@ import numpy as np
 import glob,os
 
 from src.sim_double_well_SDE import load_parameters
-
 import multiprocessing
+
+cutoff = 100000
 
 # Convert the trajectories
 def convert_txt_to_numpy_traj(f):
@@ -16,17 +17,20 @@ def convert_txt_to_numpy_traj(f):
         time, pos = np.loadtxt(f).T
         np.save(f_np,pos)
     return f
-P = multiprocessing.Pool()
 
+P = multiprocessing.Pool()
 F_TRAJ = glob.glob("trajectory/umbrella_EnergyBarrier_r*")
 sol = P.imap(convert_txt_to_numpy_traj, F_TRAJ)
 for x in sol: pass
 
+from pymbar import MBAR
+
+params = load_parameters("simulation_setups/umbrella_EnergyBarrier.json")
+F_TRAJ = sorted(glob.glob("umbrella_EnergyBarrier_r*.npy"))
+
 #### Build the replicas here for templating
 from src.sim_double_well_SDE import sim_double_well, load_parameters
 from src.metrics_double_well import activation_energy
-
-params = load_parameters("simulation_setups/umbrella_EnergyBarrier.json")
 
 # Create a simulation for every temperature, set the filenames
 REPLICAS = []
@@ -55,9 +59,8 @@ for n,S in enumerate(REPLICAS):
 
 
 F_TRAJ = sorted(glob.glob("trajectory/umbrella_EnergyBarrier_r*.npy"))
-#X = np.linspace(-1.5,1.5,integration_bins)
-cutoff = 50000
 Y = np.array([np.load(f)[:cutoff] for f in F_TRAJ])
+print "Cutoff/datapoints ", cutoff, np.load(f).shape
 
 k_states = len(Y)
 l_states = len(Y)
@@ -65,11 +68,15 @@ N_k = np.array([Y[k].shape[0] for k in range(k_states)])
 N_max = max(N_k)
 u_kln = np.zeros((k_states,l_states,N_max))
 
+print "Building u_kln"
+
 for k in xrange(k_states):
     for l in xrange(l_states):
-        for n,x in enumerate(Y[k]):
-            u = REPLICAS[l].U(x)
-            u_kln[k,l,n] = u
+        u_kln[k,l,:] =  REPLICAS[l].U(Y[k])
+
+
+# Estimate free energies from simulation using MBAR.
+print "Estimating relative free energies using MBAR, this may take a while..."
 
 import pymbar
 M = pymbar.MBAR(u_kln, N_k)
@@ -82,7 +89,6 @@ F -= F[x_idx]
 F += 1
 
 plt.errorbar(U_X, F,yerr=dF_un[x_idx],label="MBAR {} samples".format(cutoff))
-
 
 '''
 def weights(X, mu, var):
@@ -116,8 +122,7 @@ A = cumtrapz(dA_avg,X)
 #A -= A.min()
 #A -= A[5000] -1
 '''
-
-def U(x,**kw): return (x**2-1.0)**2 
+def U(x): return (x**2-1.0)**2 
 
 #plt.plot(X,dA_avg,label="Umbrella integration")
 plt.plot(U_X,U(U_X),'--',label="Exact")
