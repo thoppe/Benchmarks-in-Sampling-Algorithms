@@ -3,11 +3,11 @@
     "friction_coeff" : 0.1,
     "dt" : 0.001,
 
-    "simulation_time": 800,
+    "simulation_time": 50,
 
-    "exchange_steps" : 3001,
+    "exchange_time"  : 5,
     "metric_check"   : 1000,
-    "warmup_steps" : 50000,
+    "warmup_time"    : 20,
   
     "SIM_metric_func": "activation_energy",
     "f_trajectory"   : "trajectory/replicaEx_EnergyBarrier_r{replica_n}.txt",

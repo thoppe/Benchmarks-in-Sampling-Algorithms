@@ -6,7 +6,7 @@ import glob,os
 from src.sim_double_well_SDE import load_parameters
 import multiprocessing
 
-cutoff = 100000
+cutoff = 1000
 
 # Convert the trajectories
 def convert_txt_to_numpy_traj(f):
@@ -90,6 +90,13 @@ F += 1
 
 plt.errorbar(U_X, F,yerr=dF_un[x_idx],label="MBAR {} samples".format(cutoff))
 
+X = np.array([np.linspace(-2,2,100) for _ in xrange(1001)]).T
+(A_ij, dA_ij) = M.computeExpectations(Y)
+
+print M.computeExpectations(u_kln, output='differences')[0].shape
+exit()
+plt.plot(U_X, A_ij)
+
 '''
 def weights(X, mu, var):
     sigma = np.sqrt(var)
@@ -126,6 +133,8 @@ def U(x): return (x**2-1.0)**2
 
 #plt.plot(X,dA_avg,label="Umbrella integration")
 plt.plot(U_X,U(U_X),'--',label="Exact")
+
+
 #plt.plot(X[1:],A,label="Umbrella integration")
 #plt.xlim(-2,2)
 #plt.ylim(0,2)

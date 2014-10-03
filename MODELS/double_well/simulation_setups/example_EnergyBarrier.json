@@ -4,7 +4,7 @@
     "dt" : 0.001,
 
     "simulation_time": 20,
-    "warmup_steps"   : 500,
+    "warmup_time"    : 50,
     "metric_check"   : 100,
  
     "SIM_metric_func": "activation_energy",

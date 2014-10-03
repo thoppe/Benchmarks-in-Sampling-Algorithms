@@ -7,8 +7,8 @@ import numpy as np
 desc = '''
 SAMPLING METHOD: Replica Exchange
 
-[kT_list]         defines the temperatures used.
-[exchange_steps]  number of simulation steps before a replica exchanged is attempted
+[kT_list]       defines the temperatures used.
+[exchange_time] simulation time before a replica exchanged is attempted
 
 Computes the energy barrier between a double well using overdamped 
 Langevin dynamics with an Euler-Maruyama SDE.
@@ -36,15 +36,14 @@ for replica_n,kT in enumerate(params["kT_list"]):
 
 # Let the systems equlibrate on their own
 for S in REPLICAS: 
-    S.run(params["warmup_steps"], record=False)
+    S.run(params["warmup_time"], record=False)
 
 def exchange_replicas(s0,s1):
     s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
 
-exchange_steps = params["exchange_steps"]
-
 while not REPLICAS[0].is_complete():
-    for S in REPLICAS: S.run(exchange_steps)
+    for S in REPLICAS: 
+        S.run(fixed_time = params["exchange_time"])
 
     # Choose two replicas and compute probability to exchange
     s0, s1 = random.sample(REPLICAS, 2)

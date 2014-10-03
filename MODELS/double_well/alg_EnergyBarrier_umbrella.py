@@ -51,6 +51,7 @@ for n,S in enumerate(REPLICAS):
 
 import multiprocessing
 def equilibrate(i): 
+    print params
     REPLICAS[i].run(params["warmup_steps"], record=False)
     return i
 
@@ -59,10 +60,13 @@ def run_system(i):
     REPLICAS[i].close()
     return i
 
-P = multiprocessing.Pool()
+equilibrate(0)
+exit()
+
+P = multiprocessing.Pool(1)
 sol = P.imap(equilibrate, range(len(REPLICAS)))
 for n in sol: print "Equilibrated ", n
-
+exit()
 sol = P.imap(run_system, range(len(REPLICAS)))
 for n in sol: print "Completed ", n
 P.close(); P.join()

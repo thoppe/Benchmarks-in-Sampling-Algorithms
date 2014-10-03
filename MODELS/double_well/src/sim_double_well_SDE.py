@@ -135,12 +135,12 @@ class double_well(overdamped_langevin):
     def invariant_measure(self,x):
         return np.exp(-self.U(x)/self['kT'])
 
-    def U(self,x,**kw):
+    def U(self,x,t=None,**kw):
         E = (x**2-1.0)**2 
-        E_bias = self["bias_potential"](x,**self)
+        E_bias = self["bias_potential"](x,t,**self)
         return E + E_bias
     
-    def force(self,x,t,**kw):
+    def force(self,x,t=None,**kw):
         dU      = -4*x*(x**2-1)
         dU_bias = self["bias_force"](x,t,**self)
         return (dU+dU_bias)/self["friction_coeff"]
@@ -148,8 +148,8 @@ class double_well(overdamped_langevin):
     def __init__(self, **simulation_args):
         super(double_well, self).__init__(**simulation_args)
 
-        self["bias_potential"] = lambda x,**kw: 0.0 # No bias initially set
-        self["bias_force"]     = lambda x,**kw: 0.0 # No bias initially set
+        self["bias_potential"] = lambda x,t,**kw: 0.0 # No bias initially set
+        self["bias_force"]     = lambda x,t,**kw: 0.0 # No bias initially set
         self["potential"] = self.U
         self["SDE_f"] = self.force   
 
@@ -199,29 +199,46 @@ class sim_double_well(double_well):
         except:
             pass
 
+    # __enter__ and __exit__ allow the class to be used as a context manager
+    def __enter__(self):  
+        return self
+
+    def __exit__ (self, exception_type, exception_value, traceback):  
+        self.close()
+
     def record_traj(self):
         if self.FOUT:
             out_str = "{:.5f} {:.7f}\n"
             self.FOUT.write(out_str.format(self["ti"],self["xi"]))
 
     def is_complete(self):
-        return self["ti"] >= self["simulation_time"]
+        return self["ti"] > self["simulation_time"]
 
-    def run(self, fixed_steps=np.inf, record=True):
+    def run(self, fixed_time=None, record=True):
 
         run_counter = 0
         if record: self.record_traj()
 
-        while ((not self.is_complete()) and
-               (run_counter <= fixed_steps)):
+        start_time = self["ti"]
 
+        # If a fixed time is not set, run the length of the simulation
+        if fixed_time == None:
+            fixed_time = self["simulation_time"]
+
+        while self["ti"]-start_time < fixed_time:
+            
             self.step()
+
             if record: self.record_traj()
             self["simulation_step"] += 1
+
             run_counter += 1
 
-            if run_counter%int(1/self["dt"])==0:
-                logging.info("Simulation time %f" % self["ti"])
+            if run_counter and run_counter%1000==0:
+                if record:
+                    logging.info("Simulation time %f" % self["ti"])
+                if not record:
+                    logging.info("Warmup time     %f" % self["ti"])
 
     def close(self):
         if self.FOUT:
