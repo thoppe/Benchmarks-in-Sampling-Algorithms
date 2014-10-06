@@ -5,7 +5,7 @@ from scipy.integrate import quad
 import pylab as plt
 import seaborn as sns
 
-from metrics_double_well import load_trajectory, load_results
+from helper_functions import load_trajectory, load_results
 
 def plot_simulation(S):
 

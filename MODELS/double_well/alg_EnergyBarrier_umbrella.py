@@ -1,7 +1,8 @@
-from src.sim_double_well_SDE import sim_double_well, load_parameters
-from src.metrics_double_well import activation_energy
+from src.sim_double_well_SDE import sim_double_well
+from src.helper_functions import load_parameters, compute_activation_error
+from src.helper_functions import save_results
 
-import json, argparse, logging
+import argparse, logging, random
 import numpy as np
 
 desc = '''
@@ -42,55 +43,33 @@ for n,S in enumerate(REPLICAS):
     S["umbrella_strength"] = S["umbrella_strength"]
     S["umbrella_center"]   = U_X[n]
 
-    def bias_potential(x,**kw) : 
+    def bias_potential(x,t,**kw) : 
         return (kw["umbrella_strength"]/2)*(x-kw["umbrella_center"])**2
     def bias_force(x,t,**kw)   : 
         return -kw["umbrella_strength"]*(x-kw["umbrella_center"])
     S["bias_potential"] = bias_potential
     S["bias_force"]     = bias_force
 
-import multiprocessing
-def equilibrate(i): 
-    print params
-    REPLICAS[i].run(params["warmup_steps"], record=False)
-    return i
 
-def run_system(i):
-    REPLICAS[i].run()
-    REPLICAS[i].close()
-    return i
+# Let the systems equlibrate on their own
+for S in REPLICAS: 
+    S.run(params["warmup_time"], record=False)
 
-equilibrate(0)
-exit()
+# Run each simulation
 
-P = multiprocessing.Pool(1)
-sol = P.imap(equilibrate, range(len(REPLICAS)))
-for n in sol: print "Equilibrated ", n
-exit()
-sol = P.imap(run_system, range(len(REPLICAS)))
-for n in sol: print "Completed ", n
-P.close(); P.join()
+for S in REPLICAS:
+    S.run()
+    S.close()
 
 
-exit()
-    
+for S in REPLICAS:
 
-# Compute the exact value for error measurements
-Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
-exact_activation_energy = np.array([Ub-Um0, Ub-Um1])
+    # Compute the error, summed over both wells
+    epsilon,time_steps = compute_activation_error(S)
 
-# Measure the barrier height from the trajectory
-estimated_activation_energy, time_steps = activation_energy(**S)
-
-# Compute the error
-epsilon = np.abs(estimated_activation_energy-exact_activation_energy)
-
-# Average over the two wells
-epsilon = epsilon.sum(axis=1)
-
-# Save the results
-np.savetxt(S["f_results"],np.array([time_steps, epsilon]).T)
-
+    # Save the results to file
+    save_results(S["f_results"], time_steps, epsilon)
+  
 # Plot the results if asked
 if "show_plot" in params and params["show_plot"]:
     from src.plots_double_well import plot_simulation

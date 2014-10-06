@@ -19,5 +19,5 @@ plot_results:
 	python src/plots_results.py
 
 clean:
-	rm -rvf results/* trajectory/*.txt
+	rm -rvf results/* trajectory/*.txt trajectory/*.npy
 

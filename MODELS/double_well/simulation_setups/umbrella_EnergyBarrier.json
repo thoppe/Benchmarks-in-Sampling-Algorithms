@@ -4,16 +4,20 @@
     "dt" : 0.001,
 
     "umbrella_bounds"   : [-2, 2],
-    "umbrella_windows"  : 16,
+    "umbrella_windows"  : 4,
     "umbrella_strength" : 20,
 
     "metric_check"   : 1000,
-    "warmup_time"    : 50,
-    "simulation_time": 100,
+    "warmup_time"    : 0,
+    "simulation_time": 10,
  
     "SIM_metric_func": "activation_energy",
     "f_trajectory"   : "trajectory/umbrella_EnergyBarrier_r{replica_n}.txt",
     "f_results"      : "results/umbrella_EnergyBarrier_r{replica_n}.txt",
+
+    "histogram_bins" : 1000,
+    "histogram_min"  : -2.5,
+    "histogram_max"  :  2.5,
 
     "show_plot" : false
 }

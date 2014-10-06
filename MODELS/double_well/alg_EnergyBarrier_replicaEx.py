@@ -1,7 +1,8 @@
-from src.sim_double_well_SDE import sim_double_well, load_parameters
-from src.metrics_double_well import activation_energy
+from src.sim_double_well_SDE import sim_double_well
+from src.helper_functions import load_parameters, compute_activation_error
+from src.helper_functions import save_results
 
-import json, argparse, logging, random
+import argparse, logging, random
 import numpy as np
 
 desc = '''
@@ -38,9 +39,6 @@ for replica_n,kT in enumerate(params["kT_list"]):
 for S in REPLICAS: 
     S.run(params["warmup_time"], record=False)
 
-def exchange_replicas(s0,s1):
-    s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
-
 while not REPLICAS[0].is_complete():
     for S in REPLICAS: 
         S.run(fixed_time = params["exchange_time"])
@@ -53,32 +51,23 @@ while not REPLICAS[0].is_complete():
     beta1 = 1.0/s1["kT"]
     p = np.exp((beta0-beta1)*(u0-u1))
 
+    def exchange_replicas(s0,s1):
+        s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
+
     # Exchange replica coordinates if Metropolis-Hastings condition is met
     if np.random.random() < p:
         exchange_replicas(s0,s1)
 
-# Compute the exact value for error measurements
-Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
-exact_activation_energy = np.array([Ub-Um0, Ub-Um1])
-
-# Compute the error
-for k,S in enumerate(REPLICAS): 
-
+for S in REPLICAS: 
+    
     # Close any files open
     S.close()
 
-    # Measure the barrier height from the trajectory
-    estimated_activation_energy, time_steps = activation_energy(**S)
+    # Compute the error, summed over both wells
+    epsilon,time_steps = compute_activation_error(S)
 
-    # Compute the error
-    epsilon = np.abs(estimated_activation_energy-exact_activation_energy)
-
-    # Average over the two wells
-    epsilon = epsilon.sum(axis=1)
-
-    # Save the results
-    np.savetxt(S["f_results"],np.array([time_steps, epsilon]).T)
-
+    # Save the results to file
+    save_results(S["f_results"], time_steps, epsilon)
 
 # Plot the results if asked
 if "show_plot" in params and params["show_plot"]:

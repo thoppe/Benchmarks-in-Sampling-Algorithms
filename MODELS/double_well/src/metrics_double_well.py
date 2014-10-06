@@ -1,28 +1,7 @@
 import numpy as np
 import logging
+from helper_functions import iterate_trajectory
 
-def load_results(S):
-    # Loads the results the file S["f_results"]
-    # Returns epsilon_time_step, epsilon
-    return np.loadtxt(S["f_results"],unpack=True)
-
-def load_trajectory(S):
-    # Loads the trajectory in the file S["f_trajectory"]
-    # Returns T, X
-    return np.loadtxt(S["f_trajectory"],unpack=True)
-
-def iterate_trajectory(S):
-    ''' 
-    Iterates through the file S["f_trajectory"] in steps of S["metric_check"]
-    '''
-    T,X   = load_trajectory(S)
-    d_idx = S["metric_check"]
-
-    for idx in xrange(0, X.size, d_idx):
-        x_chunk = X[idx:idx+d_idx]
-        t_chunk = T[idx:idx+d_idx]
-        if x_chunk.size == d_idx:
-            yield t_chunk,x_chunk
 
 def activation_energy(**S):
     ''' 

@@ -1,4 +1,4 @@
-import json, logging, os
+import logging, os
 import numpy as np
 from numpy.random import normal
 import metrics_double_well as metrics
@@ -244,51 +244,3 @@ class sim_double_well(double_well):
         if self.FOUT:
             self.FOUT.close()
 
-#########################################################################
-
-def load_parameters(f_json):
-    '''
-    Helper function that loads a JSON file with the system parameters in it.
-    Checks if the metric function is a valid known function.
-    Also creates the directory "results" if it doesn't exist.
-
-    Parameters
-    ----------
-    f_json : string
-        Filename of the input json file
-
-    Raises
-    -------
-    ValueError
-        For problems loading the json file.
-
-    KeyError
-        For problems loading the metric.
-
-    Returns
-    -------
-    params : dict
-        A dictionary with the paramaters loaded.
-    '''
-
-    with open(f_json) as FIN:
-        try:
-            params = json.loads(FIN.read())
-        except Exception as ex:
-            err_msg = "Problem with json file: {} {}".format(f_json, ex)
-            raise ValueError(err_msg)
-
-        # Turn the loaded string SIM_metric_func into a function
-        try:
-            func_name = "{}.{}".format("metrics", params["SIM_metric_func"])
-            params["SIM_metric_func"] = eval(func_name)
-        except Exception as ex:
-            err_msg = "Problem with metric: {} {}"
-            err_msg =  err_msg.format(func_name, ex)
-            raise KeyError(err_msg)
-
-    target_dir = "results"
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-
-    return params
