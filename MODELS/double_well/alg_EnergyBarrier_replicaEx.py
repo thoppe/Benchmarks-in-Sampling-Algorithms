@@ -1,8 +1,8 @@
 from src.sim_double_well_SDE import sim_double_well
-from src.helper_functions import load_parameters, compute_activation_error
-from src.helper_functions import save_results
+from src.helper_functions import startup_simulation, finalize_simulation
+from src.metrics_double_well import compute_activation_error
 
-import argparse, logging, random
+import logging, random
 import numpy as np
 
 desc = '''
@@ -15,15 +15,7 @@ Computes the energy barrier between a double well using overdamped
 Langevin dynamics with an Euler-Maruyama SDE.
 '''
 
-parser = argparse.ArgumentParser(description=desc)
-parser.add_argument('parameter_file_json')
-cargs = vars(parser.parse_args())
-
-# Start the logger
-logging.root.setLevel(logging.INFO)
-
-# Load the simulation parameters
-params = load_parameters(cargs["parameter_file_json"])
+params = startup_simulation(desc, format_filenames=False)
 
 # Create a simulation for every temperature, set the filenames
 REPLICAS = []
@@ -51,30 +43,11 @@ while not REPLICAS[0].is_complete():
     beta1 = 1.0/s1["kT"]
     p = np.exp((beta0-beta1)*(u0-u1))
 
-    def exchange_replicas(s0,s1):
-        s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
-
     # Exchange replica coordinates if Metropolis-Hastings condition is met
     if np.random.random() < p:
-        exchange_replicas(s0,s1)
+        s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
 
-for S in REPLICAS: 
-    
-    # Close any files open
-    S.close()
 
-    # Compute the error, summed over both wells
-    epsilon,time_steps = compute_activation_error(S)
-
-    # Save the results to file
-    save_results(S["f_results"], time_steps, epsilon)
-
-# Plot the results if asked
-if "show_plot" in params and params["show_plot"]:
-    from src.plots_double_well import plot_simulation
-    for S in REPLICAS: 
-        plot_simulation(S)
-    
-    
-    
-
+# Finish the simulation, make plots, etc...
+for S in REPLICAS:    
+    finalize_simulation(S, metric_function=compute_activation_error)

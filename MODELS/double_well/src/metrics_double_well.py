@@ -2,7 +2,6 @@ import numpy as np
 import logging
 from helper_functions import iterate_trajectory
 
-
 def activation_energy(**S):
     ''' 
     Computes the activation energy (\delta U) over both sides  
@@ -55,3 +54,22 @@ def activation_energy(**S):
         all_time_step.append( time_step )
 
     return np.array(all_E), np.array(all_time_step)
+
+
+###########################################################################
+
+
+def compute_activation_error(S, well_locations = [-1,0,1]):
+    # Compute the exact value for error measurements
+    Um0, Ub, Um1 = map(S["potential"], well_locations)
+    exact_activation_energy = np.array([Ub-Um0, Ub-Um1])
+
+    # Measure the barrier height from the trajectory
+    estimated_activation_energy, time_steps = activation_energy(**S)
+
+    # Compute the error, summed over both wells
+    epsilon = np.abs(estimated_activation_energy-exact_activation_energy)
+    epsilon = epsilon.sum(axis=1)
+
+    return time_steps, epsilon
+

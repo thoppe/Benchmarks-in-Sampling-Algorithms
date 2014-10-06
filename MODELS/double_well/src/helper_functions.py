@@ -1,7 +1,79 @@
 import numpy as np
-import json, os
-
 import metrics_double_well as metrics
+import json, os, argparse, logging
+
+###########################################################################
+
+def startup_simulation(desc="",
+                       logging_level=logging.INFO,
+                       format_filenames=True):
+    '''
+    Helper function that runs command-line parsing, 
+    and sets the logging level.
+
+    Parameters
+    ----------
+    desc : string
+        Program description
+
+    Returns
+    -------
+    params : dict
+        A dictionary with the paramaters loaded.
+    '''
+
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('parameter_file_json')
+    parser.add_argument('--replica_n', type=int, default=0,
+                        help="Formats this number into the results file")
+    cargs = vars(parser.parse_args())
+    
+    # Start the logger
+    logging.root.setLevel(logging_level)
+
+    # Load the simulation parameters
+    params = load_parameters(cargs["parameter_file_json"])
+
+    if format_filenames:
+        params["f_trajectory"] = params["f_trajectory"].format(**cargs)
+        params["f_results"]    = params["f_results"].format(**cargs)
+
+    return params
+
+
+def finalize_simulation(S, metric_function):
+    '''
+    Helper function finishes a simulation.
+
+    Parameters
+    ----------
+
+    S              : sim_double_well
+        Completed simulation
+
+    metric_funcion : function
+        Function to compute the metric over, must return
+        (time_steps, epsilon)
+
+    Returns
+    -------
+    params : dict
+        A dictionary with the paramaters loaded.
+    '''
+    # Close any open files
+    S.close()
+
+    time_steps, epsilon = metric_function(S)
+
+    # Save the results to file
+    save_results(S["f_results"], time_steps, epsilon)
+
+    # Plot the results if asked
+    if "show_plot" in S and S["show_plot"]:
+        from plots_double_well import plot_simulation
+        plot_simulation(S)
+   
+
 
 def load_parameters(f_json):
     '''
@@ -79,21 +151,3 @@ def iterate_trajectory(S):
         t_chunk = T[idx:idx+d_idx]
         if x_chunk.size == d_idx:
             yield t_chunk,x_chunk
-
-###########################################################################
-
-def compute_activation_error(S):
-    # Compute the exact value for error measurements
-    Um0, Ub, Um1 = map(S["potential"], [-1,0,1])
-    exact_activation_energy = np.array([Ub-Um0, Ub-Um1])
-
-    # Measure the barrier height from the trajectory
-    H = metrics.activation_energy
-    estimated_activation_energy, time_steps = H(**S)
-
-    # Compute the error, summed over both wells
-    epsilon = np.abs(estimated_activation_energy-exact_activation_energy)
-    epsilon = epsilon.sum(axis=1)
-
-    return epsilon, time_steps
-
