@@ -56,13 +56,13 @@ While the estimated potential has a large absolute error, the estimated energy d
 
 The simulation can be repeated by running:
 
-    python method_equilibrium.py simulation_setups/equilibrium_EnergyBarrier.json
+    python method_equilibrium.py simulation_setups/equilibrium_sim.json
 
 or simply:
 
     make sim_equilibrium
 
-The configuration file [`equilibrium_EnergyBarrier.json`](simulation_setups/equilibrium_EnergyBarrier.json) sets the system parameters:
+The configuration file [`equilibrium_sim.json`](simulation_setups/equilibrium_sim.json) sets the system parameters:
 
 ```JSON
 {
@@ -76,8 +76,8 @@ The configuration file [`equilibrium_EnergyBarrier.json`](simulation_setups/equi
     "warmup_steps"   : 50000,
  
     "SIM_metric_func": "activation_energy",
-    "f_trajectory"   : "trajectory/equilibrium_EnergyBarrier_r{replica_n}.txt",
-    "f_results"      : "results/equilibrium_EnergyBarrier_r{replica_n}.txt",
+    "f_trajectory"   : "trajectory/equilibrium_r{replica_n}.txt",
+    "f_results"      : "results/equilibrium_r{replica_n}.txt",
 
     "histogram_bins" : 1000,
     "histogram_min"  : -2.5,
@@ -93,13 +93,13 @@ With `show_plot` set to `true` the trajectory plot above is reproduced.
 
 The simulation can be repeated by running:
 
-    python method_replicaEx.py simulation_setups/replicaEx_EnergyBarrier.json
+    python method_replicaEx.py simulation_setups/replicaEx_sim.json
 
 or the shortcut
 
     make sim_replicaEx
 
-In addition to the parameters set by the equilibrium sampling algorithm, the configuration file [`replicaEx_EnergyBarrier.json`](simulation_setups/replicaEx_EnergyBarrier.json) highlights two new options available:
+In addition to the parameters set by the equilibrium sampling algorithm, the configuration file [`replicaEx_sim.json`](simulation_setups/replicaEx_sim.json) highlights two new options available:
 
 ```JSON
 {

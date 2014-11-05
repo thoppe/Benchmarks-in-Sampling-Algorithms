@@ -27,7 +27,7 @@ for replica_n,kT in enumerate(params["kT_list"]):
     p["f_results"] = p["f_results"].format(**p)
     REPLICAS.append( sim_double_well(**p) )
 
-# Let the systems equlibrate on their own
+# Let the systems equilibrate on their own
 for S in REPLICAS: 
     S.run(params["warmup_time"], record=False)
 
@@ -46,7 +46,6 @@ while not REPLICAS[0].is_complete():
     # Exchange replica coordinates if Metropolis-Hastings condition is met
     if np.random.random() < p:
         s0["xi"], s1["xi"] = s1["xi"], s0["xi"]
-
 
 # Finish the simulation, make plots, etc...
 for S in REPLICAS:    
