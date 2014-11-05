@@ -1,7 +1,7 @@
 # Run the simulations
 
-sim_umbrella:
-	python method_umbrella.py simulation_setups/umbrella_sim.json
+sim_example:
+	python method_equilibrium.py simulation_setups/equilibrium_example.json
 
 sim_equilibrium:
 	python method_equilibrium.py simulation_setups/equilibrium_sim.json
@@ -12,11 +12,15 @@ parallel_equilibrium:
 sim_replicaEx:
 	python method_replicaEx.py simulation_setups/replicaEx_sim.json
 
-sim_example:
-	python method_equilibrium.py simulation_setups/equilibrium_example.json
+sim_umbrella:
+	python method_umbrella.py simulation_setups/umbrella_sim.json
+
+############################################################################
 
 plot_results:
 	python src/plots_results.py
+
+############################################################################
 
 clean:
 	rm -rvf results/* trajectory/*.txt trajectory/*.npy
