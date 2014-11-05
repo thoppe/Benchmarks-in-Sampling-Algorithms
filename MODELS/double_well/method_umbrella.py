@@ -13,7 +13,7 @@ Computes the energy barrier between a double well using overdamped
 Langevin dynamics with an Euler-Maruyama SDE.
 '''
 
-params = startup_simulation(desc, format_filenames=False)
+cargs, params = startup_simulation(desc, format_filenames=False)
 
 # Create a simulation for every temperature, set the filenames
 REPLICAS = []

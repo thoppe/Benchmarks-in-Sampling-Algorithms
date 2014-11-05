@@ -26,10 +26,16 @@ def startup_simulation(desc="",
     parser.add_argument('parameter_file_json')
     parser.add_argument('--replica_n', type=int, default=0,
                         help="Formats this number into the results file")
+    parser.add_argument('--parallel', action='store_true', default=False,
+                        help="Runs the simulation in parallel (if possible)")
     cargs = vars(parser.parse_args())
     
     # Start the logger
     logging.root.setLevel(logging_level)
+
+    # Load multiprocessing library if requested
+    if cargs["parallel"]: 
+        logging.warning("Multiprocessing not implemented yet.")
 
     # Load the simulation parameters
     params = load_parameters(cargs["parameter_file_json"])
@@ -38,7 +44,7 @@ def startup_simulation(desc="",
         params["f_trajectory"] = params["f_trajectory"].format(**cargs)
         params["f_results"]    = params["f_results"].format(**cargs)
 
-    return params
+    return cargs, params
 
 
 def finalize_simulation(S, metric_function):

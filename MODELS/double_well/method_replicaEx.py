@@ -15,7 +15,12 @@ Computes the energy barrier between a double well using overdamped
 Langevin dynamics with an Euler-Maruyama SDE.
 '''
 
-params = startup_simulation(desc, format_filenames=False)
+cargs, params = startup_simulation(desc, format_filenames=False)
+
+# Load multiprocessing library if requested
+if cargs["parallel"]: 
+    import multiprocessing as mp
+    logging.warning("Multiprocessing not implemented yet.")
 
 # Create a simulation for every temperature, set the filenames
 REPLICAS = []
@@ -50,3 +55,5 @@ while not REPLICAS[0].is_complete():
 # Finish the simulation, make plots, etc...
 for S in REPLICAS:    
     finalize_simulation(S, metric_function=compute_activation_error)
+
+

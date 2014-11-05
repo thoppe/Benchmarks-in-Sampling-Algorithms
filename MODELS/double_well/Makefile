@@ -10,7 +10,7 @@ parallel_equilibrium:
 	parallel python method_equilibrium.py simulation_setups/equilibrium_sim.json --replica_n ::: 0 1 2 3 5
 
 sim_replicaEx:
-	python method_replicaEx.py simulation_setups/replicaEx_sim.json
+	python method_replicaEx.py simulation_setups/replicaEx_sim.json --parallel
 
 sim_umbrella:
 	python method_umbrella.py simulation_setups/umbrella_sim.json
