@@ -25,9 +25,9 @@ for replica_n in range(params["umbrella_windows"]):
     REPLICAS.append( sim_double_well(**p) )
 
 # Modify the potential of each simulation
-ubounds  = REPLICAS[0]["umbrella_bounds"]
-uwindows = REPLICAS[0]["umbrella_windows"]
-U_X = np.linspace(ubounds[0],ubounds[1],uwindows)
+U_X = np.linspace(*params["umbrella_bounds"], 
+                  num=params["umbrella_windows"])
+
 for n,S in enumerate(REPLICAS):
         
     S["umbrella_strength"] = S["umbrella_strength"]

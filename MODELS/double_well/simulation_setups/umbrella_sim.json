@@ -12,8 +12,8 @@
     "simulation_time": 10,
  
     "SIM_metric_func": "activation_energy",
-    "f_trajectory"   : "trajectory/umbrella_EnergyBarrier_r{replica_n}.txt",
-    "f_results"      : "results/umbrella_EnergyBarrier_r{replica_n}.txt",
+    "f_trajectory"   : "trajectory/umbrella_r{replica_n}.txt",
+    "f_results"      : "results/umbrella_r{replica_n}.txt",
 
     "histogram_bins" : 1000,
     "histogram_min"  : -2.5,

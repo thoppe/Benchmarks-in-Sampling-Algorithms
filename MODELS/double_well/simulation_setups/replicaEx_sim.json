@@ -10,8 +10,8 @@
     "warmup_time"    : 20,
   
     "SIM_metric_func": "activation_energy",
-    "f_trajectory"   : "trajectory/replicaEx_EnergyBarrier_r{replica_n}.txt",
-    "f_results"      : "results/replicaEx_EnergyBarrier_r{replica_n}.txt",
+    "f_trajectory"   : "trajectory/replicaEx_r{replica_n}.txt",
+    "f_results"      : "results/replicaEx_r{replica_n}.txt",
 
     "histogram_bins" : 1000,
     "histogram_min"  : -2.5,

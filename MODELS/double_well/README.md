@@ -46,7 +46,7 @@ After running the simulations, this plot can be reproduced by running
 
 Note: This does not properly scale the time needed for replica exchange yet.
 
-**Sampling Algorithm**: [Equilibrium](alg_EnergyBarrier_equilibrium.py)
+**Sampling Algorithm**: [Equilibrium](method_equilibrium.py)
 
 The simulation shows a naive way of calculating the energy barrier, simply let the system evolve. 
 Shown below is a sample trajectory, the estimated potential, the error and the observed versus expected visits to each position. 
@@ -56,7 +56,7 @@ While the estimated potential has a large absolute error, the estimated energy d
 
 The simulation can be repeated by running:
 
-    python alg_EnergyBarrier_equilibrium.py simulation_setups/equilibrium_EnergyBarrier.json
+    python method_equilibrium.py simulation_setups/equilibrium_EnergyBarrier.json
 
 or simply:
 
@@ -89,11 +89,11 @@ The configuration file [`equilibrium_EnergyBarrier.json`](simulation_setups/equi
 
 With `show_plot` set to `true` the trajectory plot above is reproduced. 
 
-**Sampling Algorithm**: [Replica Exchange](alg_EnergyBarrier_replicaEx.py)
+**Sampling Algorithm**: [Replica Exchange](method_replicaEx.py)
 
 The simulation can be repeated by running:
 
-    python alg_EnergyBarrier_replicaEx.py simulation_setups/replicaEx_EnergyBarrier.json
+    python method_replicaEx.py simulation_setups/replicaEx_EnergyBarrier.json
 
 or the shortcut
 

@@ -8,8 +8,8 @@
     "metric_check"   : 100,
  
     "SIM_metric_func": "activation_energy",
-    "f_trajectory"   : "trajectory/example_r{replica_n}.txt",
-    "f_results"      : "results/example_r{replica_n}.txt",
+    "f_trajectory"   : "trajectory/equilibrium_example_r{replica_n}.txt",
+    "f_results"      : "results/equilibrium_example_r{replica_n}.txt",
 
     "histogram_bins" : 1000,
     "histogram_min"  : -2.5,
