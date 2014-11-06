@@ -8,7 +8,7 @@
     "umbrella_strength" : 20,
 
     "metric_check"   : 1000,
-    "warmup_time"    : 0,
+    "warmup_time"    : 5,
     "simulation_time": 10,
  
     "SIM_metric_func": "activation_energy",
