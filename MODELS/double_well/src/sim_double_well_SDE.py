@@ -114,11 +114,6 @@ class SDE_euler_maruyama(object):
         self.ti += dt
         self.n  += 1
 
-#params = {"dt":2}
-#S = SDE_euler_maruyama(**params)
-#print S.__dict__
-#exit()
-
 class overdamped_langevin(SDE_euler_maruyama):
     ''' 
     Defines a generic one-dimensional Langevin overdamped system
@@ -147,12 +142,6 @@ class overdamped_langevin(SDE_euler_maruyama):
 
         # The overdamped langevin experiences constant brownian motion
         self.SDE_g = self.brownian_motion
-
-#params = {"dt":2}
-#S = overdamped_langevin(**params)
-#print S.__dict__
-#print S.SDE_g(2,2)
-#exit()
 
 class double_well(overdamped_langevin):
     ''' 
@@ -195,13 +184,6 @@ class double_well(overdamped_langevin):
 
         self.potential = self.U
         self.SDE_f     = self.force
-
-
-#params = {"dt":2}
-#S = double_well(**params)
-#print S.invariant_measure(2)
-#print S.SDE_g(2,2)
-#exit()
 
 class sim_double_well(double_well):
     ''' 
@@ -285,8 +267,4 @@ class sim_double_well(double_well):
         if self.FOUT:
             self.FOUT.close()
 
-#params = {"dt":2}
-#S = sim_double_well(**params)
-#print S.invariant_measure(2)
-#print S.SDE_g(2,2)
-#exit()
+
