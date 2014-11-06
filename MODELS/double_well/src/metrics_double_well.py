@@ -1,13 +1,13 @@
 import numpy as np
 import logging
-from helper_functions import iterate_trajectory
+from helper_functions import iterate_trajectory, save_results
 
-def activation_energy(**S):
+def activation_energy(S, **params):
     ''' 
     Computes the activation energy (\delta U) over both sides  
     of the double well with minima and maximum at [-1,0,1] respectively. 
-    A histogram H, is built from the saved trajectory and the potential energy
-    is estimated by U = -np.log(H)*kT. 
+    A histogram H, is built from the saved trajectory and the 
+    potential energy is estimated by U = -np.log(H)*kT. 
 
     Parameters
     ----------
@@ -20,22 +20,24 @@ def activation_energy(**S):
     -------
     \delta H : np.array([measurements, 2])
         Measurements of the left and right side of the energy barrier at
-        intervals of S["metric_check"]
+        intervals of S.metric_check
     '''
 
-    logging.info("Computing the activation energy for %s"%S["f_trajectory"])
+    logging.info("Computing the activation energy for %s"
+                 %S.f_trajectory)
 
-    H,bins = np.histogram([],bins=S["histogram_bins"],
-                          range=(S["histogram_min"],S["histogram_max"]))
-    bins = np.linspace(S["histogram_min"],
-                       S["histogram_max"],
-                       S["histogram_bins"]+1)
+    H,bins = np.histogram([],bins=params["histogram_bins"],
+                          range=(params["histogram_min"],
+                                 params["histogram_max"]))
+    bins = np.linspace(params["histogram_min"],
+                       params["histogram_max"],
+                       params["histogram_bins"]+1)
     H    = np.ones(bins.size)
 
     def close_index(bins, value):
         return (np.abs(bins-value)).argmin()
     
-    def U_estimated(idx): return -np.log(H[idx])*S["kT"]
+    def U_estimated(idx): return -np.log(H[idx])*S.kT
 
     target_E = [-1,0,1]
     U_index  = [close_index(bins, E) for E in target_E]
@@ -44,7 +46,7 @@ def activation_energy(**S):
     all_time_step = []
     time_step = 0
 
-    for t,x in iterate_trajectory(S):
+    for t,x in iterate_trajectory(S, **params):
         time_step += t.size
         H += np.bincount(np.digitize(x, bins),minlength=H.size)
         Em0, Eb, Em1 = map(U_estimated, U_index)
@@ -59,17 +61,23 @@ def activation_energy(**S):
 ###########################################################################
 
 
-def compute_activation_error(S, well_locations = [-1,0,1]):
+def compute_activation_error(S, well_locations = [-1,0,1], 
+                             save_to_file = True,
+                             **params):
     # Compute the exact value for error measurements
-    Um0, Ub, Um1 = map(S["potential"], well_locations)
+    Um0, Ub, Um1 = map(S.potential, well_locations)
     exact_activation_energy = np.array([Ub-Um0, Ub-Um1])
 
     # Measure the barrier height from the trajectory
-    estimated_activation_energy, time_steps = activation_energy(**S)
+    estimated_activation_energy, time_steps = activation_energy(S, **params)
 
     # Compute the error, summed over both wells
     epsilon = np.abs(estimated_activation_energy-exact_activation_energy)
     epsilon = epsilon.sum(axis=1)
+
+    if save_to_file:
+        save_results(params["f_results"],
+                     time_steps, epsilon)
 
     return time_steps, epsilon
 

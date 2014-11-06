@@ -23,7 +23,16 @@ S.run(fixed_time=params["warmup_time"], record=False)
 # Run the simulation
 S.run()
 
-# Finish the simulation, make plots, etc...
-finalize_simulation(S, metric_function=compute_activation_error)    
+# Close any open file handlers
+S.close()
+
+# Compute and save the errors
+compute_activation_error(S, **params)
+
+# Plot the results if requested
+if params["show_plot"]:
+    import src.plots_double_well as plot
+    plot.plot_simulation(S,**params)
+
     
 

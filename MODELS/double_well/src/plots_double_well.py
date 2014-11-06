@@ -7,7 +7,7 @@ import seaborn as sns
 
 from helper_functions import load_trajectory, load_results
 
-def plot_simulation(S):
+def plot_simulation(S,**params):
 
     xbounds = 2.5
     xp = np.linspace(-xbounds,xbounds,1000)
@@ -17,7 +17,7 @@ def plot_simulation(S):
     ax.set_title(r"Particle trajectory")
 
     T,X = load_trajectory(S)
-    epsilon_T, epsilon = load_results(S)
+    epsilon_T, epsilon = load_results(params["f_results"])
 
     # Plot only the last 25 s of simulation time
     idx = T > (T.max()-25)
@@ -29,18 +29,18 @@ def plot_simulation(S):
 
     ax = axes[0,1]
     ax.set_title(r"Potential")
-    ax.plot(xp,S["potential"](xp))
+    ax.plot(xp,S.potential(xp))
     ax.set_ylim(-1, 4)
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$U(x)$")
 
     # Plot the estimated potential as a KDE
     H = KDE(X)
-    U = -np.log(H(xp))*S["kT"]
+    U = -np.log(H(xp))*S.kT
 
     # Shift the estimated potential down for visual aide
     # (only relative differences matter anyways)
-    U += S["potential"](0) + np.log(H(0))*S["kT"]
+    U += S.potential(0) + np.log(H(0))*S.kT
 
     ax.plot(xp,U,color='r',alpha=.75)
 

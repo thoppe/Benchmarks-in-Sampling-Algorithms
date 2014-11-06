@@ -135,22 +135,23 @@ def save_results(f_results, time_steps, epsilon):
     data = np.array([time_steps,epsilon]).T
     return np.savetxt(f_results,data)
 
-def load_results(S):
+def load_results(f_results):
     # Loads the results the file S["f_results"]
     # Returns epsilon_time_step, epsilon
-    return np.loadtxt(S["f_results"],unpack=True)
+    return np.loadtxt(f_results,unpack=True)
 
 def load_trajectory(S):
-    # Loads the trajectory in the file S["f_trajectory"]
+    # Loads the trajectory in the file params["f_trajectory"]
     # Returns T, X
-    return np.loadtxt(S["f_trajectory"],unpack=True)
+    return np.loadtxt(S.f_trajectory,unpack=True)
 
-def iterate_trajectory(S):
+def iterate_trajectory(S, **params):
     ''' 
-    Iterates through the file S["f_trajectory"] in steps of S["metric_check"]
+    Iterates through the file params["f_trajectory"] 
+    in steps of params["metric_check"]
     '''
     T,X   = load_trajectory(S)
-    d_idx = S["metric_check"]
+    d_idx = params["metric_check"]
 
     for idx in xrange(0, X.size, d_idx):
         x_chunk = X[idx:idx+d_idx]
